@@ -15,7 +15,9 @@ export default defineConfig({
       input: {
         options: path.resolve(__dirname, "options.html"),
         popup: path.resolve(__dirname, "popup.html"),
+        background: path.resolve(__dirname, "src/extension-src/background.ts"),
       },
     },
+    manifest: "output.json",
   },
 })

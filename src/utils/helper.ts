@@ -10,6 +10,7 @@ class MetaNodeShell {
       this._raw = code
       eval(`this._evaled=${code}`)
     } catch (err) {
+      console.log(err)
       throw new Error("Node initial error")
     }
     this.id = id
