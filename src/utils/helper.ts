@@ -1,48 +1,14 @@
+import { MESSAGE_TYPE } from "@/constants/message"
 import { BundledPipeline, IdentityNode, MetaNode, Node, Pipeline } from "@/store/type"
 import { v4 as uuidv4 } from "uuid"
-
-class MetaNodeShell {
-  id: string
-  _raw: string
-  _evaled: any
-  constructor(code: string, id: string = uuidv4()) {
-    try {
-      this._raw = code
-      eval(`this._evaled=${code}`)
-    } catch (err) {
-      console.log(err)
-      throw new Error("Node initial error")
-    }
-    this.id = id
-  }
-  toJSON() {
-    return {
-      _raw: this._raw,
-      id: this.id,
-      config: {
-        ...this._evaled.config,
-        name: this._evaled.config?.name || `Node${this.id}`,
-      },
-      run: this._evaled.run,
-    } as MetaNode
-  }
-}
+import { requestSandbox } from "./sandboxMessage"
 
 export function generateMetaNode(codeStr: string, id?: string) {
-  return new MetaNodeShell(codeStr, id).toJSON()
+  return requestSandbox<MetaNode>(MESSAGE_TYPE.Meta, { codeStr, id })
 }
 
-export function runMetaNode(metaNode: MetaNode, input: any, options: any = {}) {
-  if (!metaNode.config?.options) return
-  const optionsWithDefaultValue: any = {}
-  metaNode.config?.options.forEach((option) => {
-    if (options[option.name] === undefined) {
-      optionsWithDefaultValue[option.name] = option.default
-    } else {
-      optionsWithDefaultValue[option.name] = options[option.name]
-    }
-  })
-  return metaNode.run(input, optionsWithDefaultValue)
+export function runPipeline(pipeline: BundledPipeline, input?: any) {
+  return requestSandbox(MESSAGE_TYPE.RunPipeline, { pipeline, input })
 }
 
 export const DEMO = `(function () {

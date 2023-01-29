@@ -2,7 +2,7 @@ import {
   generateMetaNode,
   generatePipeline,
   getRelatedMetaNodes,
-  runMetaNode,
+  runPipeline,
 } from "@/utils/helper"
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
@@ -15,13 +15,13 @@ import { BundledPipeline, MetaNode, Pipeline } from "./type"
 export type State = {
   metaNodes: MetaNode[]
   pipelines: Pipeline[]
-  addMetaNode(metaNodeStr: string): void
+  addMetaNode(metaNodeStr: string): Promise<void>
   installMetaNode(metaNode: MetaNode): void
   removeMetaNode(id: string, related?: boolean): void
-  updateMetaNode(id: string, metaNodeStr: string): void
+  updateMetaNode(id: string, metaNodeStr: string): Promise<void>
   addPipeline(pipeline: Omit<Pipeline, "id">): void
   installPipeline(bundledPipeline: BundledPipeline): void
-  runPipeline(id: string, input: any): void
+  runPipeline(id: string, input: any): Promise<any>
   removePipeline(id: string, related?: boolean): void
   updatePipeline(id: string, pipeline: Omit<Pipeline, "id">): void
 }
@@ -33,9 +33,10 @@ const useStore = create<State>()(
         metaNodes: [] as MetaNode[],
         pipelines: [] as Pipeline[],
 
-        addMetaNode(metaNodeStr) {
+        async addMetaNode(metaNodeStr) {
+          const metaNode = await generateMetaNode(metaNodeStr)
           set((state) => {
-            state.metaNodes.push(generateMetaNode(metaNodeStr))
+            state.metaNodes.push(metaNode)
           })
         },
         installMetaNode(metaNode) {
@@ -58,11 +59,12 @@ const useStore = create<State>()(
             }
           })
         },
-        updateMetaNode(id, metaNodeStr) {
+        async updateMetaNode(id, metaNodeStr) {
+          const metaNode = await generateMetaNode(metaNodeStr, id)
           set((state) => {
             const toBeUpdatedIndex = state.metaNodes.findIndex((item) => item.id === id)
             if (toBeUpdatedIndex === -1) return
-            state.metaNodes[toBeUpdatedIndex] = generateMetaNode(metaNodeStr, id)
+            state.metaNodes[toBeUpdatedIndex] = metaNode
           })
         },
         addPipeline(pipeline) {
@@ -116,20 +118,21 @@ const useStore = create<State>()(
           if (!pipeline) {
             throw new Error("no pipeline")
           }
-          const action = pipeline.nodes.reduce(
-            (preAction, node) => {
-              const metaNode = metaNodes.find((item) => item.id === node.metaId)
-              if (!metaNode) {
-                throw new Error("no metaNode")
-              }
-              return async () => {
-                const result = await preAction()
-                return runMetaNode(metaNode, result, node.options)
-              }
-            },
-            async () => input
-          )
-          return action()
+          const nodesWithMeta = pipeline.nodes.map((node) => {
+            const metaNode = metaNodes.find((item) => item.id === node.metaId)
+            if (!metaNode) {
+              throw new Error("no metaNode")
+            }
+            return {
+              metaNode,
+              ...node,
+            }
+          })
+          const bundledPipeline: BundledPipeline = {
+            ...pipeline,
+            nodes: nodesWithMeta,
+          }
+          return runPipeline(bundledPipeline, input)
         },
       })),
       persistOptions

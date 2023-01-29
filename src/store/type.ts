@@ -1,11 +1,18 @@
 export type TypeDefinition = {
   type: "string" | "number" | "boolean" | "json" | "enum" | "any"
   enumItems?: { name: string; value: string }[]
-  default?: any
   desc?: string
 }
 
-export type Option = { name: string } & TypeDefinition
+export type Option = {
+  name: string
+  default?: any
+} & TypeDefinition
+
+export type RunningContext = {
+  fetch: (...args: any[]) => any
+  alioss: (...args: any[]) => any
+}
 
 export type MetaNode = {
   _raw: string
@@ -17,7 +24,7 @@ export type MetaNode = {
     output?: TypeDefinition
     options?: Option[]
   }
-  run(input: any, options: Record<string, any>): any
+  run(input: any, options: Record<string, any>, context: RunningContext): any
 }
 
 export type Node = {

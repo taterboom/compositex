@@ -15,6 +15,7 @@ export default defineConfig({
       input: {
         options: path.resolve(__dirname, "options.html"),
         popup: path.resolve(__dirname, "popup.html"),
+        sandbox: path.resolve(__dirname, "sandbox.html"),
         background: path.resolve(__dirname, "src/extension-src/background.ts"),
       },
     },

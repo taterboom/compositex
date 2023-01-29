@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build && npm run cp",
     "preview": "vite preview",
-    "cp": "cp ./manifest.json dist/ && cp -R ./images dist/"
+    "cp": "cp ./manifest.json dist/ && cp -R ./images dist/ && cp -R src/assets/ dist/assets/"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.4.6",

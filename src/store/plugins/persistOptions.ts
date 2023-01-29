@@ -3,13 +3,18 @@ import { generateMetaNode } from "@/utils/helper"
 export const persistOptions = {
   name: "composite-x",
   storage: {
-    getItem: (name: string) => {
+    getItem: async (name: string) => {
       const str = localStorage.getItem(name)
       const state = JSON.parse(str!).state
+      // TODO patch generate
+      const metaNodes = await Promise.all(
+        state.metaNodes.map((item: any) => generateMetaNode(item._raw, item.id))
+      )
+      console.log("initial from storage", metaNodes)
       return {
         state: {
-          ...JSON.parse(str!).state,
-          metaNodes: state.metaNodes.map((item: any) => generateMetaNode(item._raw, item.id)),
+          ...state,
+          metaNodes,
         },
       }
     },
