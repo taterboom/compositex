@@ -105,8 +105,8 @@ const useStore = create<State>()(
                 }
               })
               if (metaNodeOnlyUsed.length > 0) {
-                state.metaNodes = state.metaNodes.filter((item) =>
-                  metaNodeOnlyUsed.includes(item.id)
+                state.metaNodes = state.metaNodes.filter(
+                  (item) => !metaNodeOnlyUsed.includes(item.id)
                 )
               }
             }

@@ -16,6 +16,12 @@ const context = {
       window.addEventListener("message", onReceive(res))
       window.parent.postMessage(message, "*")
     }),
+  mainWorld: (expression: string) =>
+    new Promise((res) => {
+      const { message, onReceive } = generateMessageTools(MESSAGE_TYPE.MainWorld, { expression })
+      window.addEventListener("message", onReceive(res))
+      window.parent.postMessage(message, "*")
+    }),
 }
 
 class MetaNodeShell {

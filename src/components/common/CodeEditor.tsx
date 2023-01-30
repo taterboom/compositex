@@ -6,6 +6,7 @@ import jsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker"
 import cssWorker from "monaco-editor/esm/vs/language/css/css.worker?worker"
 import htmlWorker from "monaco-editor/esm/vs/language/html/html.worker?worker"
 import tsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker"
+import { NAMESPACE_TYPE } from "@/constants/codeEditor"
 
 self.MonacoEnvironment = {
   getWorker(_, label) {
@@ -32,32 +33,7 @@ const installTypes = (monaco: Monaco) => {
   if (_installed) return
   _installed = true
   // extra libraries
-  var libSource = `
-declare namespace CompositeX {
-    export type RunningContext = {
-      fetch: (...args: any[]) => any
-      alioss: (...args: any[]) => any
-    }
-    export type TypeDefinition = {
-        type: "string" | "number" | "boolean" | "json" | "enum" | "any"
-        enumItems?: { name: string; value: string }[]
-        
-        desc?: string
-    }
-    export type Option = {
-      name: string
-      default?: any
-    } & TypeDefinition
-    export type MetaNodeConfig = {
-        config: {
-            name: string
-            input?: TypeDefinition
-            output?: TypeDefinition
-            options?: Option[]
-        }
-        run(input: any, options: Record<string, any>, context: RunningContext): any
-    }
-}`
+  var libSource = NAMESPACE_TYPE
   var libUri = "ts:filename/composite-x.d.ts"
   monaco.languages.typescript.javascriptDefaults.addExtraLib(libSource, libUri)
   // When resolving definitions and references, the editor will try to use created models.

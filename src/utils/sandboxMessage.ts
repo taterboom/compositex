@@ -1,4 +1,4 @@
-import { MESSAGE_TYPE, MESSAGE_TYPE_PREFIX } from "@/constants/message"
+import { MESSAGE_TYPE_PREFIX } from "@/constants/message"
 import { v4 as uuidv4 } from "uuid"
 import { initTerminals } from "./sandboxMessageTerminal"
 
@@ -32,39 +32,6 @@ async function getIframe() {
   }
   return iframeEl
 }
-
-function initFetchTerminal() {
-  window.addEventListener("message", (event) => {
-    if (
-      !(
-        event.source &&
-        (event.source as WindowProxy).window &&
-        event.data &&
-        event.data.type.startsWith(MESSAGE_TYPE_PREFIX)
-      )
-    ) {
-      return
-    }
-    if (event.data.type === MESSAGE_TYPE.Fetch) {
-      fetch(...(event.data.payload as [any]))
-        .then((res) => {
-          console.log(res)
-          const contentType = res.headers.get("content-type")
-          if (contentType?.includes("json")) {
-            return res.json()
-          }
-          if (contentType?.includes("image")) {
-            return res.blob()
-          }
-          return res.text()
-        })
-        .then((res) => {
-          sendMessage(event, MESSAGE_TYPE.FetchRes, res)
-        })
-    }
-  })
-}
-initFetchTerminal()
 
 export function sendMessage(event: MessageEvent, type: string, payload: Payload) {
   ;(event.source as WindowProxy).window.postMessage(

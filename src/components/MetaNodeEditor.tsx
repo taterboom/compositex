@@ -1,4 +1,4 @@
-import { DEMO } from "@/utils/helper"
+import { DEMO } from "@/constants/codeEditor"
 import { useRef } from "react"
 import Editor from "./common/CodeEditor"
 

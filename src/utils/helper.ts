@@ -11,30 +11,6 @@ export function runPipeline(pipeline: BundledPipeline, input?: any) {
   return requestSandbox(MESSAGE_TYPE.RunPipeline, { pipeline, input })
 }
 
-export const DEMO = `(function () {
-  /** @type {CompositeX.MetaNodeConfig} */
-  const nodeConfig = {
-      config: {
-          name: "Increase",
-          desc: "Increase number",
-          input: { type: "number" },
-          output: { type: "number" },
-          options: [
-              { name: "step", type: "number", default: 1 },
-          ],
-      },
-      run(input, options) {
-          // you can return promise
-          return new Promise((resolve) => {
-            setTimeout(() => {
-              resolve(input + options.step)
-            }, 1000);
-          })
-      }
-  }
-  return nodeConfig
-})()`
-
 export function generatePipeline(pipeline: Pipeline | Omit<Pipeline, "id">): Pipeline {
   return {
     id: uuidv4(),

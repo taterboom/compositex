@@ -6,4 +6,6 @@ export const MESSAGE_TYPE = {
   FetchRes: `${MESSAGE_TYPE_PREFIX}FetchRes`,
   Alioss: `${MESSAGE_TYPE_PREFIX}Alioss`,
   AliossRes: `${MESSAGE_TYPE_PREFIX}AliossRes`,
+  MainWorld: `${MESSAGE_TYPE_PREFIX}MainWorld`,
+  MainWorldRes: `${MESSAGE_TYPE_PREFIX}MainWorldRes`,
 }

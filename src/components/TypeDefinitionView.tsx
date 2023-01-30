@@ -73,7 +73,6 @@ export function TypeDefinitionView({
             try {
               onChange?.(JSON.parse(e.target.value))
             } catch (err) {
-              console.log(err)
               //
             }
           }}

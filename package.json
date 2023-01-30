@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.4.6",
+    "@types/chrome": "^0.0.210",
+    "acorn": "^8.8.2",
     "classnames": "^2.3.2",
     "daisyui": "^2.47.0",
     "immer": "^9.0.18",
