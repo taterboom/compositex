@@ -22,6 +22,7 @@ export function PipelineItem(props: { value: Pipeline }) {
   const [logs, setLogs] = useState<any[]>([])
   const runPipeline = useStore((state) => state.runPipeline)
   const removePipeline = useStore((state) => state.removePipeline)
+  const exportPipeline = useStore((state) => state.exportPipeline)
   const firstMetaNode = useStore(selectMetaNode(props.value.nodes[0].metaId))
   const inputRef = useRef()
   const inputDefinition = firstMetaNode?.config.input
@@ -39,6 +40,14 @@ export function PipelineItem(props: { value: Pipeline }) {
         }}
       >
         Delete
+      </button>
+      <button
+        className="btn"
+        onClick={() => {
+          exportPipeline(props.value.id)
+        }}
+      >
+        Export
       </button>
       <div className="flex">
         {inputDefinition ? (

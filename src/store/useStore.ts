@@ -24,6 +24,7 @@ export type State = {
   runPipeline(id: string, input: any): Promise<any>
   removePipeline(id: string, related?: boolean): void
   updatePipeline(id: string, pipeline: Omit<Pipeline, "id">): void
+  exportPipeline(id: string): void
 }
 
 const useStore = create<State>()(
@@ -113,6 +114,7 @@ const useStore = create<State>()(
           })
         },
         runPipeline(id, input) {
+          // TODO reuse
           const { pipelines, metaNodes } = get()
           const pipeline = pipelines.find((item) => item.id === id)
           if (!pipeline) {
@@ -133,6 +135,29 @@ const useStore = create<State>()(
             nodes: nodesWithMeta,
           }
           return runPipeline(bundledPipeline, input)
+        },
+        exportPipeline(id) {
+          // TODO reuse
+          const { pipelines, metaNodes } = get()
+          const pipeline = pipelines.find((item) => item.id === id)
+          if (!pipeline) {
+            throw new Error("no pipeline")
+          }
+          const nodesWithMeta = pipeline.nodes.map((node) => {
+            const metaNode = metaNodes.find((item) => item.id === node.metaId)
+            if (!metaNode) {
+              throw new Error("no metaNode")
+            }
+            return {
+              metaNode,
+              ...node,
+            }
+          })
+          const bundledPipeline: BundledPipeline = {
+            ...pipeline,
+            nodes: nodesWithMeta,
+          }
+          console.log(JSON.stringify(bundledPipeline, null, 2))
         },
       })),
       persistOptions
