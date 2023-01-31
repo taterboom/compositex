@@ -33,7 +33,7 @@ async function getIframe() {
   return iframeEl
 }
 
-export function sendMessage(event: MessageEvent, type: string, payload: Payload) {
+export function sendBackMessage(event: MessageEvent, type: string, payload: Payload) {
   ;(event.source as WindowProxy).window.postMessage(
     generateMessage(type, payload, event.data.id),
     event.origin === "null" ? "*" : event.origin
@@ -53,7 +53,7 @@ export function generateMessage(type: string, payload: Payload, id = uuidv4()) {
   return {
     id,
     type,
-    timesttamp: Date.now(),
+    timestamp: Date.now(),
     payload: formatMessagePayload(payload),
   }
 }
@@ -73,11 +73,28 @@ export function generateMessageTools(type: string, payload: Payload) {
   }
 }
 
+export function generateMessageSender(endpoint: Window) {
+  return <T>(type: string, payload: any, options: { once?: boolean } = {}) => {
+    return new Promise<T>((resolve) => {
+      const { once = false } = options
+      const { message, onReceive } = generateMessageTools(type, payload)
+      if (once) {
+        const listener = onReceive((data: any) => {
+          window.removeEventListener("message", listener)
+          resolve(data)
+        })
+        window.addEventListener("message", listener)
+      }
+      endpoint.postMessage(message, "*")
+    })
+  }
+}
+
 export async function requestSandbox<T>(type: string, payload: Record<string, any>) {
   const iframe = await getIframe()
-  return new Promise<T>((resolove, reject) => {
-    const { message, onReceive } = generateMessageTools(type, payload)
-    window.addEventListener("message", onReceive(resolove))
-    iframe.contentWindow?.postMessage(message, "*")
-  })
+  if (!iframe.contentWindow) {
+    throw new Error("iframe.contentWindow not found")
+  }
+  const sendMessage = generateMessageSender(iframe.contentWindow)
+  return sendMessage<T>(type, payload, { once: true })
 }

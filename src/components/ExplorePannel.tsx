@@ -41,7 +41,7 @@ function TinyMetaNode(props: { value: MetaNode }) {
   )
 }
 
-function PipelineItem(props: { value: BundledPipeline }) {
+export function PipelineItem(props: { value: BundledPipeline }) {
   const pipeline = props.value
   const localPipeline = useStore(selectPipeline(props.value.id))
   const installPipeline = useStore((state) => state.installPipeline)

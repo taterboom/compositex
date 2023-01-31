@@ -1,7 +1,12 @@
 export const NAMESPACE_TYPE = `
 declare namespace CompositeX {
+    export type FetchResult = {
+      ok: boolean
+      status: number
+      data: any
+    }
     export type RunningContext = {
-      fetch: (...args: any[]) => Promise<any>
+      fetch: (...args: any[]) => Promise<FetchResult>
       alioss: (payload: { file: File; service: string }) => Promise<string>
       mainWorld: (expression: string) => Promise<any>
     }

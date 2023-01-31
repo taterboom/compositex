@@ -2,6 +2,7 @@ export const PANEL = {
   PIPELINE: "pipeline",
   NODE: "node",
   EXPLORE: "explore",
+  IMPORT: "import",
 }
 
 export function getCurrentPanel(panelStr: string) {

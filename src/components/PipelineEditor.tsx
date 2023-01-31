@@ -13,6 +13,13 @@ function DraggableMetaNode(props: { value: MetaNode; onAdd?: (index?: number) =>
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemType.META,
     item: props.value,
+    end: (item, monitor) => {
+      const dropResult = monitor.getDropResult()
+      // @ts-ignore
+      if (item && !item.resolved && dropResult && dropResult.shouldAdd) {
+        props.onAdd?.()
+      }
+    },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
       handlerId: monitor.getHandlerId(),
@@ -68,7 +75,7 @@ function NodeEditor(props: {
     }),
   }))
   const [{ handlerId }, drop] = useDrop<
-    IdentityNode & { index: number },
+    IdentityNode & { index: number; resolved: boolean },
     void,
     { handlerId: any | null }
   >({
@@ -103,6 +110,7 @@ function NodeEditor(props: {
       // but it's good here for the sake of performance
       // to avoid expensive index searches.
       item.index = hoverIndex
+      item.resolved = true
     },
   })
   drag(ref)
@@ -148,6 +156,12 @@ function Nodes({
 }) {
   const [{ canDrop, isOver }, drop] = useDrop(() => ({
     accept: ItemType.META,
+    drop(item, monitor) {
+      // @ts-ignore
+      if (item && !item.resolved) {
+        return { shouldAdd: true }
+      }
+    },
     collect: (monitor) => ({
       isOver: monitor.isOver(),
       canDrop: monitor.canDrop(),
@@ -161,7 +175,10 @@ function Nodes({
     backgroundColor = "darkkhaki"
   }
   return (
-    <div ref={drop} style={{ backgroundColor, padding: 16, border: "1px solid white" }}>
+    <div
+      ref={drop}
+      style={{ backgroundColor, padding: 16, border: "1px solid white", minWidth: 480 }}
+    >
       {nodes.map((item, index) => (
         <NodeEditor
           key={item.id}
@@ -231,7 +248,7 @@ export function PipelineEditor(props: {
   return (
     <div>
       <DndProvider backend={HTML5Backend}>
-        <div className="flex">
+        <div className="">
           <input
             type="text"
             placeholder="Type Name"
@@ -246,8 +263,10 @@ export function PipelineEditor(props: {
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
           />
-          <MetaNodes onAdd={addNode} />
-          <Nodes nodes={nodes} onUpdateNode={updateNode} onMoveNode={moveNode} />
+          <div className="flex">
+            <MetaNodes onAdd={addNode} />
+            <Nodes nodes={nodes} onUpdateNode={updateNode} onMoveNode={moveNode} />
+          </div>
           <div>
             <button
               className="btn"

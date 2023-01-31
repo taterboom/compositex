@@ -4,13 +4,14 @@ import {
   getRelatedMetaNodes,
   runPipeline,
 } from "@/utils/helper"
+import { saveJSON } from "@/utils/save"
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import { immer } from "zustand/middleware/immer"
 import { logger } from "./plugins/logger"
 import { persistOptions } from "./plugins/persistOptions"
-import { selectMetaNode, selectPipeline } from "./selectors"
-import { BundledPipeline, MetaNode, Pipeline } from "./type"
+import { selectBundledPipeline, selectMetaNode, selectPipeline } from "./selectors"
+import { BundledPipeline, MetaNode, Pipeline, ProgressItem } from "./type"
 
 export type State = {
   metaNodes: MetaNode[]
@@ -21,7 +22,7 @@ export type State = {
   updateMetaNode(id: string, metaNodeStr: string): Promise<void>
   addPipeline(pipeline: Omit<Pipeline, "id">): void
   installPipeline(bundledPipeline: BundledPipeline): void
-  runPipeline(id: string, input: any): Promise<any>
+  runPipeline(id: string, input: any, onProgress?: (data: ProgressItem) => void): Promise<any>
   removePipeline(id: string, related?: boolean): void
   updatePipeline(id: string, pipeline: Omit<Pipeline, "id">): void
   exportPipeline(id: string): void
@@ -113,51 +114,13 @@ const useStore = create<State>()(
             }
           })
         },
-        runPipeline(id, input) {
-          // TODO reuse
-          const { pipelines, metaNodes } = get()
-          const pipeline = pipelines.find((item) => item.id === id)
-          if (!pipeline) {
-            throw new Error("no pipeline")
-          }
-          const nodesWithMeta = pipeline.nodes.map((node) => {
-            const metaNode = metaNodes.find((item) => item.id === node.metaId)
-            if (!metaNode) {
-              throw new Error("no metaNode")
-            }
-            return {
-              metaNode,
-              ...node,
-            }
-          })
-          const bundledPipeline: BundledPipeline = {
-            ...pipeline,
-            nodes: nodesWithMeta,
-          }
-          return runPipeline(bundledPipeline, input)
+        runPipeline(id, input, onProgress) {
+          const bundledPipeline = selectBundledPipeline(id)(get())
+          return runPipeline(bundledPipeline, input, onProgress)
         },
         exportPipeline(id) {
-          // TODO reuse
-          const { pipelines, metaNodes } = get()
-          const pipeline = pipelines.find((item) => item.id === id)
-          if (!pipeline) {
-            throw new Error("no pipeline")
-          }
-          const nodesWithMeta = pipeline.nodes.map((node) => {
-            const metaNode = metaNodes.find((item) => item.id === node.metaId)
-            if (!metaNode) {
-              throw new Error("no metaNode")
-            }
-            return {
-              metaNode,
-              ...node,
-            }
-          })
-          const bundledPipeline: BundledPipeline = {
-            ...pipeline,
-            nodes: nodesWithMeta,
-          }
-          console.log(JSON.stringify(bundledPipeline, null, 2))
+          const bundledPipeline = selectBundledPipeline(id)(get())
+          saveJSON(bundledPipeline, bundledPipeline.name)
         },
       })),
       persistOptions

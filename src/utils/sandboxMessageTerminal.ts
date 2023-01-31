@@ -1,9 +1,20 @@
 import { MESSAGE_TYPE, MESSAGE_TYPE_PREFIX } from "@/constants/message.js"
 import { Parser } from "acorn"
 import { OSSUpload } from "./alioss.js"
-import { sendMessage } from "./sandboxMessage"
+import { sendBackMessage } from "./sandboxMessage"
 
-function checkMessageValid(event: MessageEvent) {
+export type StatusMessage = {
+  result?: any
+  error?: any
+}
+
+export type FetchResult = {
+  ok: boolean
+  status: number
+  data: any
+}
+
+export function checkMessageValid(event: MessageEvent) {
   return (
     event.source &&
     (event.source as WindowProxy).window &&
@@ -12,26 +23,38 @@ function checkMessageValid(event: MessageEvent) {
 }
 
 export function initFetchTerminal() {
-  window.addEventListener("message", (event) => {
+  window.addEventListener("message", async (event) => {
     if (!checkMessageValid(event)) {
       return
     }
     if (event.data.type === MESSAGE_TYPE.Fetch) {
-      fetch(...(event.data.payload as [any]))
-        .then((res) => {
-          console.log(res)
-          const contentType = res.headers.get("content-type")
-          if (contentType?.includes("json")) {
-            return res.json()
-          }
-          if (contentType?.includes("image")) {
-            return res.blob()
-          }
-          return res.text()
-        })
-        .then((res) => {
-          sendMessage(event, MESSAGE_TYPE.FetchRes, res)
-        })
+      try {
+        const res = await fetch(...(event.data.payload as [any]))
+        let data
+        const contentType = res.headers.get("content-type")
+        if (contentType?.includes("json")) {
+          data = await res.json()
+        } else if (contentType?.includes("image")) {
+          data = await res.blob()
+        } else {
+          data = await res.text()
+        }
+        const fetchResult: FetchResult = {
+          ok: res.ok,
+          status: res.status,
+          data,
+        }
+        const resultPayload: StatusMessage = {
+          result: res.ok ? fetchResult : undefined,
+          error: res.ok ? undefined : fetchResult,
+        }
+        sendBackMessage(event, MESSAGE_TYPE.FetchRes, resultPayload)
+      } catch (error) {
+        const resultPayload: StatusMessage = {
+          error,
+        }
+        sendBackMessage(event, MESSAGE_TYPE.FetchRes, resultPayload)
+      }
     }
   })
 }
@@ -45,9 +68,20 @@ function initAliossTerminal() {
       const uploader = new OSSUpload({
         service: event.data.payload.service,
       })
-      uploader.run(event.data.payload.file).then((res) => {
-        sendMessage(event, MESSAGE_TYPE.AliossRes, res.url)
-      })
+      uploader
+        .run(event.data.payload.file)
+        .then((res) => {
+          const resultPayload: StatusMessage = {
+            result: res.url,
+          }
+          sendBackMessage(event, MESSAGE_TYPE.AliossRes, resultPayload)
+        })
+        .catch((error) => {
+          const resultPayload: StatusMessage = {
+            error,
+          }
+          sendBackMessage(event, MESSAGE_TYPE.AliossRes, resultPayload)
+        })
     }
   })
 }
@@ -75,54 +109,71 @@ function traverse(node: any): Array<string | string[]> {
   return []
 }
 
+const ERROR_PREFIX = "__COMPOSITEX___ERROR"
+
 function execInMainWorld(chunks: Array<string | string[]>) {
-  const result = chunks.reduce(
-    (res: { pre: any; current: any }, chunk) => {
-      if (Array.isArray(chunk)) {
-        const currentResult = res.current.apply(res.pre, chunk)
-        return {
-          pre: res.current,
-          current: currentResult,
+  try {
+    const result = chunks.reduce(
+      (res: { pre: any; current: any }, chunk) => {
+        if (Array.isArray(chunk)) {
+          const currentResult = res.current.apply(res.pre, chunk)
+          return {
+            pre: res.current,
+            current: currentResult,
+          }
+        } else {
+          return {
+            pre: res.current,
+            current: res.current[chunk],
+          }
         }
-      } else {
-        return {
-          pre: res.current,
-          current: res.current[chunk],
-        }
+      },
+      {
+        pre: null,
+        current: window,
       }
-    },
-    {
-      pre: null,
-      current: window,
-    }
-  )
-  return result.current
+    )
+    return result.current
+  } catch (error) {
+    // "__COMPOSITEX___ERROR" should be literal here
+    // @ts-ignore
+    return "__COMPOSITEX___ERROR" + error?.message
+  }
 }
 
 function initFetchMainWorld() {
-  window.addEventListener("message", (event) => {
+  window.addEventListener("message", async (event) => {
     if (!checkMessageValid(event)) {
       return
     }
     if (event.data.type === MESSAGE_TYPE.MainWorld) {
       if (event.data.payload?.expression === undefined) return
-      chrome.tabs.query({ currentWindow: true, active: true }).then((res) => {
+      try {
+        const res = await chrome.tabs.query({ currentWindow: true, active: true })
         const activeTabId = res[0]?.id
         if (!activeTabId) return
         const chunks = traverse(Parser.parse(event.data.payload.expression, { ecmaVersion: 2020 }))
-        console.log("!!!", chunks)
-        chrome.scripting
-          .executeScript({
-            target: { tabId: activeTabId },
-            func: execInMainWorld,
-            args: [chunks],
-          })
-          .then((res) => {
-            if (res[0]) {
-              sendMessage(event, MESSAGE_TYPE.MainWorldRes, res[0].result)
-            }
-          })
-      })
+        const execResult = await chrome.scripting.executeScript({
+          target: { tabId: activeTabId },
+          func: execInMainWorld,
+          args: [chunks],
+        })
+        if (execResult[0]) {
+          const result = execResult[0].result
+          if (result?.startsWith?.(ERROR_PREFIX)) {
+            throw new Error(result.slice(ERROR_PREFIX.length))
+          }
+          const resultPayload: StatusMessage = {
+            result,
+          }
+          sendBackMessage(event, MESSAGE_TYPE.MainWorldRes, resultPayload)
+        }
+      } catch (error) {
+        const resultPayload: StatusMessage = {
+          error,
+        }
+        sendBackMessage(event, MESSAGE_TYPE.MainWorldRes, resultPayload)
+      }
     }
   })
 }

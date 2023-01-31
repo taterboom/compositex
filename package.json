@@ -15,6 +15,7 @@
     "acorn": "^8.8.2",
     "classnames": "^2.3.2",
     "daisyui": "^2.47.0",
+    "file-saver": "^2.0.5",
     "immer": "^9.0.18",
     "monaco-editor": "^0.34.1",
     "react": "^18.2.0",
@@ -26,6 +27,7 @@
     "zustand": "^4.3.2"
   },
   "devDependencies": {
+    "@types/file-saver": "^2.0.5",
     "@types/node": "^18.11.18",
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.9",

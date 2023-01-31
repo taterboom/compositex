@@ -45,3 +45,10 @@ export type Pipeline = {
 export type BundledPipeline = Omit<Pipeline, "nodes"> & {
   nodes: Array<Node & { metaNode: MetaNode }>
 }
+
+export type ProgressItem = {
+  pipelineId: string
+  index: number
+  result?: any
+  error?: any
+}
