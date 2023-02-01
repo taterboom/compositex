@@ -1,10 +1,13 @@
 import { generatePanelLink, PANEL } from "@/constants/page"
+import { plugins, setupTerminal } from "@/plugins"
 import clsx from "classnames"
 import { Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom"
 import { ExplorePannel } from "./ExplorePannel"
 import { ImportPanel } from "./ImportPanel"
 import { MetaNodePanel } from "./MetaNodePanel"
 import { PipelinePanel } from "./PipelinePanel"
+
+setupTerminal(plugins)
 
 export function App() {
   const navigate = useNavigate()

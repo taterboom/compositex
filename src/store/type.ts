@@ -9,10 +9,7 @@ export type Option = {
   default?: any
 } & TypeDefinition
 
-export type RunningContext = {
-  fetch: (...args: any[]) => any
-  alioss: (...args: any[]) => any
-}
+export type RunningContext = any
 
 export type MetaNode = {
   _raw: string
@@ -47,6 +44,7 @@ export type BundledPipeline = Omit<Pipeline, "nodes"> & {
 }
 
 export type ProgressItem = {
+  ok: boolean
   pipelineId: string
   index: number
   result?: any

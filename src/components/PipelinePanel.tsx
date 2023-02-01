@@ -10,8 +10,7 @@ import { TypeDefinitionView } from "./TypeDefinitionView"
 import clsx from "classnames"
 
 function Result(props: { value: ProgressItem }) {
-  const success = "result" in props.value
-  const result = success ? props.value.result : props.value.error
+  const result = props.value.ok ? props.value.result : props.value.error
   const resultText =
     result instanceof Error
       ? result.message
@@ -20,7 +19,10 @@ function Result(props: { value: ProgressItem }) {
       : result
   return (
     <div
-      className={clsx("overflow-x-auto border-2 rounded", success ? "border-info" : "border-error")}
+      className={clsx(
+        "overflow-auto border-2 rounded h-10",
+        props.value.ok ? "border-info" : "border-error"
+      )}
       onClick={() => {
         window.navigator.clipboard.writeText(resultText)
       }}
@@ -31,6 +33,7 @@ function Result(props: { value: ProgressItem }) {
 }
 
 export function Progress(props: { value: ProgressItem[]; pipeline: Pipeline }) {
+  const [currentChoosedIndex, setCurrentChoosedIndex] = useState<null | number>(null)
   const scrollableWrapper = useRef<HTMLDivElement>(null)
   const currentProgressIndex = useMemo(() => {
     for (let i = props.value.length - 1; i >= 0; i -= 1) {
@@ -39,6 +42,7 @@ export function Progress(props: { value: ProgressItem[]; pipeline: Pipeline }) {
       }
     }
   }, [props.value])
+  const end = currentProgressIndex === props.pipeline.nodes.length - 1
   useEffect(() => {
     if (!scrollableWrapper.current) return
     const nextProgressItemElement = scrollableWrapper.current.querySelector(
@@ -56,6 +60,10 @@ export function Progress(props: { value: ProgressItem[]; pipeline: Pipeline }) {
       }
     }
   }, [currentProgressIndex])
+  const displayingProgressIndex = useMemo(
+    () => (end && currentChoosedIndex !== null ? currentChoosedIndex : currentProgressIndex),
+    [end, currentChoosedIndex, currentProgressIndex]
+  )
   return (
     <div ref={scrollableWrapper} className="overflow-x-auto">
       <ul className="steps">
@@ -66,28 +74,32 @@ export function Progress(props: { value: ProgressItem[]; pipeline: Pipeline }) {
             className={clsx(
               "step",
               props.value[index]
-                ? "error" in props.value[index]
+                ? !props.value[index].ok
                   ? "step-error"
                   : "step-info"
-                : props.value[index - 1] && !("error" in props.value[index - 1])
+                : props.value[index - 1] && !props.value[index - 1].ok
                 ? "step-primary"
-                : ""
+                : "",
+              currentChoosedIndex === index &&
+                "cursor-pointer after:outline after:outline-1 after:outline-accent-content"
             )}
+            onClick={() => {
+              setCurrentChoosedIndex(index)
+            }}
           >
             {item.name}
           </li>
         ))}
       </ul>
-      {currentProgressIndex !== undefined &&
-      (currentProgressIndex === props.pipeline.nodes.length - 1 ||
-        "error" in props.value[currentProgressIndex]) ? (
-        <Result value={props.value[currentProgressIndex]} />
+      {displayingProgressIndex !== undefined ? (
+        <Result value={props.value[displayingProgressIndex]} />
       ) : null}
     </div>
   )
 }
 
 export function PipelineItem(props: { value: Pipeline }) {
+  const [pipelineRunningId, setPipelineRunningId] = useState<string>("")
   const [progress, setProgress] = useState<ProgressItem[] | null>(null)
   const runPipeline = useStore((state) => state.runPipeline)
   const removePipeline = useStore((state) => state.removePipeline)
@@ -95,6 +107,9 @@ export function PipelineItem(props: { value: Pipeline }) {
   const firstMetaNode = useStore(selectMetaNode(props.value.nodes[0].metaId))
   const inputRef = useRef()
   const inputDefinition = firstMetaNode?.config.input
+  useEffect(() => {
+    setProgress([])
+  }, [pipelineRunningId])
   return (
     <div>
       <div>{props.value.name}</div>
@@ -128,7 +143,9 @@ export function PipelineItem(props: { value: Pipeline }) {
         <button
           className="btn"
           onClick={async () => {
-            setProgress([])
+            const runningId = props.value.id + Date.now()
+            if (runningId === pipelineRunningId) return
+            setPipelineRunningId(runningId)
             const res = await runPipeline(props.value.id, inputRef.current, (progressData) => {
               setProgress((logs) => {
                 const newLogs = logs ? [...logs] : []
@@ -142,7 +159,7 @@ export function PipelineItem(props: { value: Pipeline }) {
           {">"}
         </button>
       </div>
-      {progress && <Progress value={progress} pipeline={props.value} />}
+      {progress && <Progress key={pipelineRunningId} value={progress} pipeline={props.value} />}
     </div>
   )
 }

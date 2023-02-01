@@ -1,30 +1,16 @@
 import { MESSAGE_TYPE, MESSAGE_TYPE_PREFIX } from "@/constants/message"
+import { plugins, setupContext } from "@/plugins"
 import { BundledPipeline, MetaNode, ProgressItem, RunningContext } from "@/store/type"
-import { generateMessageSender, sendBackMessage } from "@/utils/sandboxMessage"
-import { StatusMessage } from "@/utils/sandboxMessageTerminal"
+import { generateMessageSender, sendBackMessage, StatusMessage } from "@/utils/sandboxMessage"
 import { v4 as uuidv4 } from "uuid"
 
+const context = setupContext(plugins, {})
+
+function generateContext() {
+  return { ...context }
+}
+
 const sendMessage = generateMessageSender(window.parent)
-
-const statusMessageHandler = async (promise: Promise<StatusMessage>) => {
-  const message = await promise
-  if (message.error) {
-    throw message.error
-  } else {
-    return message.result
-  }
-}
-
-const context = {
-  fetch: (...args: any[]) =>
-    statusMessageHandler(sendMessage<StatusMessage>(MESSAGE_TYPE.Fetch, args, { once: true })),
-  alioss: (payload: { file: File; service: string }) =>
-    statusMessageHandler(sendMessage<StatusMessage>(MESSAGE_TYPE.Alioss, payload, { once: true })),
-  mainWorld: (expression: string) =>
-    statusMessageHandler(
-      sendMessage<StatusMessage>(MESSAGE_TYPE.MainWorld, { expression }, { once: true })
-    ),
-}
 
 class MetaNodeShell {
   id: string
@@ -83,11 +69,16 @@ window.addEventListener("message", async function (event) {
   }
   if (event.data.type === MESSAGE_TYPE.Meta) {
     const { run, ...metaNode } = generateMetaNode(event.data.payload.codeStr, event.data.payload.id)
-    sendBackMessage(event, MESSAGE_TYPE.Meta, metaNode)
+    const result: StatusMessage = {
+      ok: true,
+      data: metaNode,
+    }
+    sendBackMessage(event, MESSAGE_TYPE.Meta, result)
   }
   if (event.data.type === MESSAGE_TYPE.RunPipeline) {
     const pipeline: BundledPipeline = event.data.payload.pipeline
     const input: any = event.data.payload.input
+    const isolateContext = generateContext()
     const action = pipeline.nodes.reduce(
       (preAction, node, index) => {
         const metaNode = node.metaNode
@@ -97,19 +88,27 @@ window.addEventListener("message", async function (event) {
         return async () => {
           const preResult = await preAction()
           try {
-            const result = await runMetaNode(metaNode, preResult, node.options, context)
-            const progressItem: ProgressItem = {
-              pipelineId: pipeline.id,
-              index,
-              result,
+            const result = await runMetaNode(metaNode, preResult, node.options, isolateContext)
+            const progressItem: StatusMessage<ProgressItem> = {
+              ok: true,
+              data: {
+                ok: true,
+                pipelineId: pipeline.id,
+                index,
+                result,
+              },
             }
             sendMessage(MESSAGE_TYPE.RunPipelineProgress, progressItem)
             return result
           } catch (error) {
-            const progressItem: ProgressItem = {
-              pipelineId: pipeline.id,
-              index,
-              error,
+            const progressItem: StatusMessage<ProgressItem> = {
+              ok: false,
+              data: {
+                ok: false,
+                pipelineId: pipeline.id,
+                index,
+                error,
+              },
             }
             sendMessage(MESSAGE_TYPE.RunPipelineProgress, progressItem)
             throw error
@@ -119,7 +118,11 @@ window.addEventListener("message", async function (event) {
       async () => input
     )
     action().then((result) => {
-      sendBackMessage(event, MESSAGE_TYPE.RunPipeline, result)
+      const resultPayload: StatusMessage = {
+        ok: true,
+        data: result,
+      }
+      sendBackMessage(event, MESSAGE_TYPE.RunPipeline, resultPayload)
     })
   }
 })

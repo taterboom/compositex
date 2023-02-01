@@ -1,3 +1,7 @@
+import { plugins, setupTypeStr } from "@/plugins"
+
+const pluginsContextType = setupTypeStr(plugins)
+
 export const NAMESPACE_TYPE = `
 declare namespace CompositeX {
     export type FetchResult = {
@@ -5,10 +9,9 @@ declare namespace CompositeX {
       status: number
       data: any
     }
+    ${pluginsContextType.global}
     export type RunningContext = {
-      fetch: (...args: any[]) => Promise<FetchResult>
-      alioss: (payload: { file: File; service: string }) => Promise<string>
-      mainWorld: (expression: string) => Promise<any>
+      ${pluginsContextType.context}
     }
     export type TypeDefinition = {
         type: "string" | "number" | "boolean" | "json" | "enum" | "any"

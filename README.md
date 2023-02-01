@@ -35,18 +35,20 @@
       options: [{ name: "apiKey", type: "string" }],
     },
     run(input, options, context) {
-      return context.fetch("https://api.tinify.com/shrink", {
-        method: "POST",
-        headers: {
-          Authorization: `Basic ${window.btoa(`api:${options.apiKey}`)}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          source: {
-            url: input,
+      return context
+        .fetch("https://api.tinify.com/shrink", {
+          method: "POST",
+          headers: {
+            Authorization: `Basic ${window.btoa(`api:${options.apiKey}`)}`,
+            "Content-Type": "application/json",
           },
-        }),
-      })
+          body: JSON.stringify({
+            source: {
+              url: input,
+            },
+          }),
+        })
+        .then((res) => res.data)
     },
   }
   return nodeConfig

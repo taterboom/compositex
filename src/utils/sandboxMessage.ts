@@ -1,8 +1,22 @@
 import { MESSAGE_TYPE_PREFIX } from "@/constants/message"
 import { v4 as uuidv4 } from "uuid"
-import { initTerminals } from "./sandboxMessageTerminal"
 
-initTerminals()
+export type StatusMessage<T = any> = {
+  ok: boolean
+  data: T
+}
+
+export function checkMessageValid(event: MessageEvent) {
+  return (
+    event.source &&
+    (event.source as WindowProxy).window &&
+    event.data?.type?.startsWith?.(MESSAGE_TYPE_PREFIX)
+  )
+}
+
+export function generateMessageType(name: string, type: string) {
+  return `${MESSAGE_TYPE_PREFIX}PLUGIN_${name}_${type}`
+}
 
 type Payload = Record<string, any> | Record<string, any>[]
 
@@ -74,27 +88,35 @@ export function generateMessageTools(type: string, payload: Payload) {
 }
 
 export function generateMessageSender(endpoint: Window) {
-  return <T>(type: string, payload: any, options: { once?: boolean } = {}) => {
-    return new Promise<T>((resolve) => {
-      const { once = false } = options
+  return <Success>(type: string, payload: Payload, options: { echo?: boolean } = {}) => {
+    return new Promise<Success>((resolve, reject) => {
+      const { echo = false } = options
       const { message, onReceive } = generateMessageTools(type, payload)
-      if (once) {
-        const listener = onReceive((data: any) => {
+      if (echo) {
+        const listener = onReceive((data: StatusMessage) => {
           window.removeEventListener("message", listener)
-          resolve(data)
+          if (data.ok) {
+            resolve(data.data)
+          } else {
+            reject(data.data)
+          }
         })
         window.addEventListener("message", listener)
+      } else {
+        // never
+        // @ts-ignore
+        resolve()
       }
       endpoint.postMessage(message, "*")
     })
   }
 }
 
-export async function requestSandbox<T>(type: string, payload: Record<string, any>) {
+export async function requestSandbox<T>(type: string, payload: Payload) {
   const iframe = await getIframe()
   if (!iframe.contentWindow) {
     throw new Error("iframe.contentWindow not found")
   }
   const sendMessage = generateMessageSender(iframe.contentWindow)
-  return sendMessage<T>(type, payload, { once: true })
+  return sendMessage<T>(type, payload, { echo: true })
 }
