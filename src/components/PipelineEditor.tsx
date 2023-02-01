@@ -63,6 +63,7 @@ function NodeEditor(props: {
     hoverIndex: number,
     draggedItem: MetaNode | IdentityNode
   ) => void
+  onRemove?: () => void
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const previewRef = useRef<HTMLDivElement>(null)
@@ -118,10 +119,14 @@ function NodeEditor(props: {
   return (
     <div
       ref={previewRef}
+      className="relative"
       style={{
         opacity: isDragging ? 0.2 : 1,
       }}
     >
+      <button className="btn absolute right-2 top-2" onClick={() => props.onRemove?.()}>
+        -
+      </button>
       <div ref={ref} className="w-8 h-8 roundered bg-primary-content"></div>
       <div>{props.value.name}</div>
       <div>{metaNode?.config.name}</div>
@@ -145,6 +150,7 @@ function Nodes({
   nodes,
   onUpdateNode,
   onMoveNode,
+  onRemoveNode,
 }: {
   nodes: IdentityNode[]
   onUpdateNode?: (id: string, value: Pick<Node, "options" | "name">) => void
@@ -153,6 +159,7 @@ function Nodes({
     hoverIndex: number,
     draggedItem: MetaNode | IdentityNode
   ) => void
+  onRemoveNode?: (index: number) => void
 }) {
   const [{ canDrop, isOver }, drop] = useDrop(() => ({
     accept: ItemType.META,
@@ -188,6 +195,7 @@ function Nodes({
             onUpdateNode?.(item.id, options)
           }}
           onMoveNode={onMoveNode}
+          onRemove={() => onRemoveNode?.(index)}
         />
       ))}
     </div>
@@ -205,8 +213,7 @@ export function PipelineEditor(props: {
   )
   const addNode = useCallback((metaNode: MetaNode, index?: number) => {
     setNodes((v) => {
-      const sameMetaNodeCount = v.filter((item) => item.metaId === metaNode.id).length
-      const node = generateIdentityNode(metaNode, sameMetaNodeCount)
+      const node = generateIdentityNode(metaNode)
       if (index === undefined || index >= v.length) {
         return v.concat(node)
       } else {
@@ -245,6 +252,12 @@ export function PipelineEditor(props: {
     },
     [addNode]
   )
+  const removeNode = (index: number) =>
+    setNodes((nodes) =>
+      produce(nodes, (draft) => {
+        draft.splice(index, 1)
+      })
+    )
   return (
     <div>
       <DndProvider backend={HTML5Backend}>
@@ -265,7 +278,12 @@ export function PipelineEditor(props: {
           />
           <div className="flex">
             <MetaNodes onAdd={addNode} />
-            <Nodes nodes={nodes} onUpdateNode={updateNode} onMoveNode={moveNode} />
+            <Nodes
+              nodes={nodes}
+              onUpdateNode={updateNode}
+              onMoveNode={moveNode}
+              onRemoveNode={removeNode}
+            />
           </div>
           <div>
             <button

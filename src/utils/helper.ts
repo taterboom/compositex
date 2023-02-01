@@ -32,11 +32,11 @@ export function generatePipeline(pipeline: Pipeline | Omit<Pipeline, "id">): Pip
   }
 }
 
-export function generateIdentityNode(metaNode: MetaNode, no: number): IdentityNode {
+export function generateIdentityNode(metaNode: MetaNode): IdentityNode {
   return {
     id: uuidv4(),
     metaId: metaNode.id,
-    name: `Node-${metaNode.config.name}${no <= 0 ? "" : `-${no + 1}`}`,
+    name: metaNode.config.name,
   }
 }
 

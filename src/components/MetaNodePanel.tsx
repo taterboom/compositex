@@ -54,14 +54,6 @@ function MetaNodeObject() {
   const updateMetaNode = useStore((state) => state.updateMetaNode)
   return (
     <div>
-      <button
-        className="btn"
-        onClick={() => {
-          navigate(-1)
-        }}
-      >
-        Back
-      </button>
       <MetaNodeEditor
         value={editedMetaNode?._raw}
         onSubmit={(value) => {
@@ -70,7 +62,8 @@ function MetaNodeObject() {
           } else {
             addMetaNode(value)
           }
-          navigate(-1)
+          // TODO Toast
+          navigate(`/${PANEL.PIPELINE}`)
         }}
       />
     </div>
