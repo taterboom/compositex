@@ -4,6 +4,7 @@ import { Pipeline, ProgressItem } from "@/store/type"
 import useStore from "@/store/useStore"
 import clsx from "classnames"
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react"
+import { MaterialSymbolsMoreHoriz, MaterialSymbolsPlayArrowRounded } from "./common/icons"
 import { TypeDefinitionView } from "./TypeDefinitionView"
 
 function Result(props: { value: ProgressItem }) {
@@ -17,7 +18,7 @@ function Result(props: { value: ProgressItem }) {
   return (
     <div
       className={clsx(
-        "overflow-auto border-2 rounded h-10",
+        "px-2 overflow-auto border-2 rounded h-10",
         props.value.ok ? "border-info" : "border-error"
       )}
       onClick={() => {
@@ -62,8 +63,8 @@ export function Progress(props: { value: ProgressItem[]; pipeline: Pipeline }) {
     [end, currentChoosedIndex, currentProgressIndex]
   )
   return (
-    <div ref={scrollableWrapper} className="overflow-x-auto">
-      <ul className="steps">
+    <div ref={scrollableWrapper} className="overflow-x-auto space-y-2">
+      <ul className="steps px-2">
         {props.pipeline.nodes.map((item, index) => (
           <li
             key={index}
@@ -111,34 +112,70 @@ export function PipelineItem(props: { value: Pipeline }) {
     }
   }, [pipelineRunningId])
   return (
-    <div>
-      <div>{props.value.name}</div>
-      <button
-        className="btn"
-        onClick={() => navigate(`/${PANEL.PIPELINE}/editor/${props.value.id}`)}
-      >
-        Edit
-      </button>
-      {/* <Link to={`editor/${props.value.id}`}>
-        <button className="btn">Edit</button>
-      </Link> */}
-      <button
-        className="btn"
-        onClick={() => {
-          // TODO check the MetaNode only used by this pipeline
-          removePipeline(props.value.id)
-        }}
-      >
-        Delete
-      </button>
-      <button
-        className="btn"
-        onClick={() => {
-          exportPipeline(props.value.id)
-        }}
-      >
-        Export
-      </button>
+    <div className="card max-w-[480px] p-4 mt-4 bg-base-200 shadow-xl space-y-2">
+      <div className="flex items-center">
+        <div className="flex-1 text-lg font-semibold">{props.value.name}</div>
+        <div className="flex">
+          <button
+            className="btn btn-ghost btn-sm btn-circle"
+            onClick={async () => {
+              const runningId = props.value.id + Date.now()
+              if (runningId === pipelineRunningId) return
+              setPipelineRunningId(runningId)
+              const res = await runPipeline(props.value.id, inputRef.current, (progressData) => {
+                setProgress((logs) => {
+                  const newLogs = logs ? [...logs] : []
+                  newLogs[progressData.index] = progressData
+                  return newLogs
+                })
+              })
+              console.log("[结果]", res)
+            }}
+          >
+            <MaterialSymbolsPlayArrowRounded />
+          </button>
+          <div className="dropdown dropdown-end">
+            <label tabIndex={0} className="btn btn-ghost btn-sm btn-circle">
+              <MaterialSymbolsMoreHoriz />
+            </label>
+            <ul
+              tabIndex={0}
+              className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32"
+            >
+              <li>
+                <a
+                  className="py-1 px-2"
+                  onClick={() => navigate(`/${PANEL.PIPELINE}/editor/${props.value.id}`)}
+                >
+                  Edit
+                </a>
+              </li>
+              <li>
+                <a
+                  className="py-1 px-2"
+                  onClick={() => {
+                    // TODO check the MetaNode only used by this pipeline
+                    removePipeline(props.value.id)
+                  }}
+                >
+                  Delete
+                </a>
+              </li>
+              <li>
+                <a
+                  className="py-1 px-2"
+                  onClick={() => {
+                    exportPipeline(props.value.id)
+                  }}
+                >
+                  Export
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
       <div className="flex">
         {inputDefinition ? (
           <TypeDefinitionView
@@ -146,26 +183,14 @@ export function PipelineItem(props: { value: Pipeline }) {
             onChange={(v) => (inputRef.current = v)}
           />
         ) : null}
-        <button
-          className="btn"
-          onClick={async () => {
-            const runningId = props.value.id + Date.now()
-            if (runningId === pipelineRunningId) return
-            setPipelineRunningId(runningId)
-            const res = await runPipeline(props.value.id, inputRef.current, (progressData) => {
-              setProgress((logs) => {
-                const newLogs = logs ? [...logs] : []
-                newLogs[progressData.index] = progressData
-                return newLogs
-              })
-            })
-            console.log("[结果]", res)
-          }}
-        >
-          {">"}
-        </button>
       </div>
-      {progress && <Progress key={pipelineRunningId} value={progress} pipeline={props.value} />}
+
+      {progress && (
+        <>
+          <div className="divider my-0"></div>
+          <Progress key={pipelineRunningId} value={progress} pipeline={props.value} />
+        </>
+      )}
     </div>
   )
 }

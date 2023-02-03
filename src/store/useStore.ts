@@ -82,8 +82,11 @@ const useStore = create<State>()(
           }
           set((state) => {
             const relatedMetaNodes = getRelatedMetaNodes(bundledPipeline)
-            relatedMetaNodes.forEach((metaNode) => {
-              state.metaNodes.push(metaNode)
+            relatedMetaNodes.forEach((toBeInstalledMetaNode) => {
+              // check if already install metaNodes
+              if (state.metaNodes.every((item) => item.id !== toBeInstalledMetaNode.id)) {
+                state.metaNodes.push(toBeInstalledMetaNode)
+              }
             })
             state.pipelines.push(bundledPipeline)
           })

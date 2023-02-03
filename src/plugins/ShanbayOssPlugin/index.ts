@@ -58,7 +58,7 @@ const ShanbayOssPlugin: Plugin = {
       name: "ShanbayOss",
       desc: "Shanbay Oss uploader",
       input: { type: "string" },
-      output: { type: "string" },
+      output: { type: "json" },
       options: [{ name: "service", type: "string", default: "cms_comment_image" }],
     },
     run(input, options, context) {
@@ -66,8 +66,12 @@ const ShanbayOssPlugin: Plugin = {
         .fetch(input)
         .then((res) => {
           const immetype = res.data.type
-          const ext = immetype.split('/')[1]
-          return new File([res], "compositex-shanbay-oss." + ext, { type: immetype })
+          let ext = immetype.split('/')[1]
+          if (ext === "svg+xml") {
+            ext = "svg"
+          }
+          console.log(ext, immetype)
+          return new File([res.data], "compositex-shanbay-oss." + ext, { type: immetype })
         })
         .then((file) => context.${NAME}({ file, service: options.service }))
     },

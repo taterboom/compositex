@@ -44,7 +44,10 @@ function execInMainWorld(chunks: Array<string | string[]>) {
     const result = chunks.reduce(
       (res: { pre: any; current: any }, chunk) => {
         if (Array.isArray(chunk)) {
-          const currentResult = res.current.apply(res.pre, chunk)
+          const currentResult = res.current.apply(
+            res.pre,
+            chunk.map((str) => (str === "window" ? window : str))
+          )
           return {
             pre: res.current,
             current: currentResult,

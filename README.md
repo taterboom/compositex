@@ -440,3 +440,18 @@ document.querySelector(".assetPreview img").src
   "desc": ""
 }
 ```
+
+```javascript
+eval(`(async function run(existUrl, format, densityScale) {
+    const apiPrefix = "https://api.zeplin.io/v2"
+    const token = document.cookie.split(";").find(item => item.trim().startsWith('userToken=')).split('userToken=')[1]
+    const path = location.pathname.replace("project", "projects").replace("screen", "screens")
+    const versionsRes = await fetch(\`\${apiPrefix}\${path}/versions\`, {headers: {"zeplin-token": token}}).then(res => res.json())
+    const versionId = versionsRes.versions[0]._id
+    const assetsUrlRes = await fetch(\`\${apiPrefix}\${path}/versions/\${versionId}/assets\`, {headers: {"zeplin-token": token}}).then(res => res.json())
+    const asstesUrl = assetsUrlRes.url
+    const layers = await fetch(asstesUrl).then(res => res.json())
+    const layer = layers.find(item => item.contents.some(content => content.url === existUrl))
+    return layer.contents.find(item => item.format === format && item.densityScale === densityScale)
+})("https://cdn.zeplin.io/61d4190b61e1e510d0f8a09f/assets/CE44FE04-94F9-4299-A67A-DA14EC7A4402.svg", "png", 3)`)
+```

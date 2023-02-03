@@ -14,11 +14,13 @@ export class OSSUpload {
       throw new Error("setup failed：service is wrong")
     }
     const { type } = file
+    let ext = type.split("/")[1]
+    if (ext === "svg+xml") {
+      ext = "svg"
+    }
     try {
       const { data: token } = await fetch(
-        `${apiv3Prefix}/media/token?code=${this.service}&green_check=true&media_type=${
-          type.split("/")[1]
-        }`
+        `${apiv3Prefix}/media/token?code=${this.service}&green_check=true&media_type=${ext}`
       ).then((res) => res.json())
       if (token.size_limit && file.size > token.size_limit * 1024) {
         throw new Error(`setup failed：exceed file size limit`)

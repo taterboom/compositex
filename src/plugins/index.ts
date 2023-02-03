@@ -15,7 +15,9 @@ export function setupTerminal(plugins: Plugin[]) {
 export function setupContext<T>(plugins: Plugin[], context: T) {
   const pluginContext: any = {}
   plugins.forEach((plugin) => {
-    pluginContext[plugin.name] = plugin.context
+    if (plugin.context) {
+      pluginContext[plugin.name] = plugin.context
+    }
   })
   return {
     ...pluginContext,
@@ -30,7 +32,7 @@ export function setupTypeStr(plugins: Plugin[]) {
     if (plugin.contextType?.global) {
       globalTypeStr += plugin.contextType.global + "\n"
     }
-    if (plugin.contextType?.global) {
+    if (plugin.contextType?.context) {
       contextTypeStr += `${plugin.name}: ${plugin.contextType.context}` + "\n"
     }
   })

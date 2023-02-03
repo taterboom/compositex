@@ -3,7 +3,9 @@ import { BundledPipeline, MetaNode, Pipeline } from "@/store/type"
 import useStore from "@/store/useStore"
 import { generateMetaNode, generatePipeline, getRelatedMetaNodes, isMetaNode } from "@/utils/helper"
 import { useEffect, useMemo, useState } from "react"
+import { MaterialSymbolsDownloadDoneRounded, MaterialSymbolsDownloadRounded } from "./common/icons"
 import { Panel } from "./common/Panel"
+import clsx from "classnames"
 
 // TODO: check id and name before add
 
@@ -12,12 +14,12 @@ function MetaNodeItem(props: { value: MetaNode }) {
   const localMetaNode = useStore(selectMetaNode(props.value.id))
   const installMetaNode = useStore((state) => state.installMetaNode)
   return (
-    <div>
+    <div className="card max-w-[480px] p-4 mt-4 bg-base-200 shadow-xl space-y-2">
       <div>{metaNode.config.name}</div>
       <div>{metaNode.config.desc}</div>
       <div>Installed? {localMetaNode ? "YES" : "NO"}</div>
       <button
-        className="btn"
+        className={clsx("btn", localMetaNode ? "btn-disabled" : "")}
         onClick={() => {
           if (localMetaNode) {
             alert("Already Installed!")
@@ -25,7 +27,11 @@ function MetaNodeItem(props: { value: MetaNode }) {
           installMetaNode(props.value)
         }}
       >
-        +
+        {localMetaNode ? (
+          <MaterialSymbolsDownloadDoneRounded />
+        ) : (
+          <MaterialSymbolsDownloadRounded />
+        )}
       </button>
     </div>
   )
@@ -36,7 +42,7 @@ function TinyMetaNode(props: { value: MetaNode }) {
   return (
     <div className="flex">
       <div>{props.value.config.name}</div>
-      <div>Installed? {localMetaNode ? "YES" : "NO"}</div>
+      <div> Installed? {localMetaNode ? "YES" : "NO"}</div>
     </div>
   )
 }
@@ -47,28 +53,30 @@ export function PipelineItem(props: { value: BundledPipeline }) {
   const installPipeline = useStore((state) => state.installPipeline)
   const relatedMetaNodes = useMemo(() => getRelatedMetaNodes(pipeline), [pipeline])
   return (
-    <div>
-      <div key={pipeline.id}>
-        <div>{pipeline.name}</div>
-        <div>{pipeline.desc}</div>
-        <div>installed? {localPipeline ? "YES" : "NO"}</div>
-        <div>
-          {relatedMetaNodes.map((metaNode) => (
-            <TinyMetaNode key={metaNode.id} value={metaNode}></TinyMetaNode>
-          ))}
-        </div>
-        <button
-          className="btn"
-          onClick={() => {
-            if (localPipeline) {
-              alert("Already Installed!")
-            }
-            installPipeline(props.value)
-          }}
-        >
-          +
-        </button>
+    <div key={pipeline.id} className="card max-w-[480px] p-4 mt-4 bg-base-200 shadow-xl space-y-2">
+      <div>{pipeline.name}</div>
+      <div>{pipeline.desc}</div>
+      <div>installed? {localPipeline ? "YES" : "NO"}</div>
+      <div>
+        {relatedMetaNodes.map((metaNode) => (
+          <TinyMetaNode key={metaNode.id} value={metaNode}></TinyMetaNode>
+        ))}
       </div>
+      <button
+        className={clsx("btn", localPipeline ? "btn-disabled" : "")}
+        onClick={() => {
+          if (localPipeline) {
+            alert("Already Installed!")
+          }
+          installPipeline(props.value)
+        }}
+      >
+        {localPipeline ? (
+          <MaterialSymbolsDownloadDoneRounded />
+        ) : (
+          <MaterialSymbolsDownloadRounded />
+        )}
+      </button>
     </div>
   )
 }
@@ -117,7 +125,6 @@ export function ExplorePannel() {
 
   return (
     <Panel>
-      <div>Explore</div>
       <div>
         {objects.map((item) =>
           isMetaNode(item) ? (

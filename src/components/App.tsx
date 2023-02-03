@@ -16,33 +16,41 @@ export function App() {
 
   return (
     <div className="flex min-h-screen">
-      <ul className="menu bg-base-200 w-32 rounded-box">
-        <li
-          className={clsx(checkPanelActive(PANEL.PIPELINE) && "border-r-4")}
-          onClick={() => navigate(generatePanelLink(PANEL.PIPELINE))}
-        >
-          <a>Pipeline</a>
+      <ul className="menu bg-base-200 w-48 p-2 rounded-box">
+        <li>
+          <a
+            className={clsx(checkPanelActive(PANEL.PIPELINE) && "active")}
+            onClick={() => navigate(generatePanelLink(PANEL.PIPELINE))}
+          >
+            Pipeline
+          </a>
         </li>
-        <li
-          className={clsx(checkPanelActive(PANEL.NODE) && "border-r-4")}
-          onClick={() => navigate(generatePanelLink(PANEL.NODE))}
-        >
-          <a>Node</a>
+        <li>
+          <a
+            className={clsx(checkPanelActive(PANEL.NODE) && "active")}
+            onClick={() => navigate(generatePanelLink(PANEL.NODE))}
+          >
+            Node
+          </a>
         </li>
-        <li
-          className={clsx(checkPanelActive(PANEL.EXPLORE) && "border-r-4")}
-          onClick={() => navigate(generatePanelLink(PANEL.EXPLORE))}
-        >
-          <a>Explore</a>
+        <li>
+          <a
+            className={clsx(checkPanelActive(PANEL.EXPLORE) && "active")}
+            onClick={() => navigate(generatePanelLink(PANEL.EXPLORE))}
+          >
+            Explore
+          </a>
         </li>
-        <li
-          className={clsx(checkPanelActive(PANEL.IMPORT) && "border-r-4")}
-          onClick={() => navigate(generatePanelLink(PANEL.IMPORT))}
-        >
-          <a>Import</a>
+        <li>
+          <a
+            className={clsx(checkPanelActive(PANEL.IMPORT) && "active")}
+            onClick={() => navigate(generatePanelLink(PANEL.IMPORT))}
+          >
+            Import
+          </a>
         </li>
       </ul>
-      <div>
+      <div className="flex-1">
         <Routes>
           <Route path={`${PANEL.PIPELINE}/*`} element={<PipelinePanel />}></Route>
           <Route path={`${PANEL.NODE}/*`} element={<MetaNodePanel />}></Route>

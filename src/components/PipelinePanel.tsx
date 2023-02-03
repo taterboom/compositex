@@ -2,6 +2,7 @@ import { PANEL } from "@/constants/page"
 import { selectPipeline } from "@/store/selectors"
 import useStore from "@/store/useStore"
 import { Link, Route, Routes, useNavigate, useParams } from "react-router-dom"
+import { MaterialSymbolsAdd, MaterialSymbolsUploadRounded } from "./common/icons"
 import { Panel } from "./common/Panel"
 import { PipelineEditor } from "./PipelineEditor"
 import { Pipelines } from "./Pipelines"
@@ -9,10 +10,17 @@ import { Pipelines } from "./Pipelines"
 function PipelinePage() {
   const navigate = useNavigate()
   return (
-    <div>
-      <div>
+    <div className="space-y-4">
+      <div className="space-x-2">
         <Link to="editor">
-          <button className="btn">New Pipeline</button>
+          <button className="btn btn-sm btn-primary">
+            <MaterialSymbolsAdd />
+          </button>
+        </Link>
+        <Link to={`/${PANEL.IMPORT}`}>
+          <button className="btn btn-sm btn-primary">
+            <MaterialSymbolsUploadRounded />
+          </button>
         </Link>
       </div>
       <Pipelines navigate={navigate} />

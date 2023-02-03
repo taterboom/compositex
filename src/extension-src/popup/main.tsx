@@ -1,3 +1,8 @@
+import {
+  MaterialSymbolsAdd,
+  MaterialSymbolsHomeRounded,
+  MaterialSymbolsUploadRounded,
+} from "@/components/common/icons"
 import { Pipelines } from "@/components/Pipelines"
 import { PANEL } from "@/constants/page"
 import { plugins, setupTerminal } from "@/plugins"
@@ -10,17 +15,30 @@ setupTerminal(plugins)
 
 function App() {
   return (
-    <div>
-      <div>
-        <button
-          className="btn"
-          onClick={() => chrome.tabs.create({ url: `options.html#/${PANEL.PIPELINE}/editor` })}
-        >
-          +
-        </button>
-        <button className="btn" onClick={() => chrome.tabs.create({ url: `options.html` })}>
-          Dashboard
-        </button>
+    <div className="p-4">
+      <div className="flex">
+        <div className="flex-1">
+          <button
+            className="btn btn-sm btn-ghost"
+            onClick={() => chrome.tabs.create({ url: `options.html#/${PANEL.PIPELINE}/editor` })}
+          >
+            <MaterialSymbolsAdd />
+          </button>
+          <button
+            className="btn btn-sm btn-ghost"
+            onClick={() => chrome.tabs.create({ url: `options.html#/${PANEL.IMPORT}` })}
+          >
+            <MaterialSymbolsUploadRounded />
+          </button>
+        </div>
+        <div className="flex">
+          <button
+            className="btn btn-sm btn-ghost"
+            onClick={() => chrome.tabs.create({ url: `options.html` })}
+          >
+            <MaterialSymbolsHomeRounded />
+          </button>
+        </div>
       </div>
       <Pipelines
         navigate={(path) => chrome.tabs.create({ url: "options.html#" + path })}

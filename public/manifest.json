@@ -4,7 +4,9 @@
   "version": "1.0",
   "manifest_version": 3,
   "icons": {
-    "48": "images/48.png"
+    "48": "images/48.png",
+    "64": "images/64.png",
+    "128": "images/128.png"
   },
   "action": {
     "default_popup": "popup.html"
