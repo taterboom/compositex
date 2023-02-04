@@ -18,7 +18,7 @@ function Result(props: { value: ProgressItem }) {
   return (
     <div
       className={clsx(
-        "px-2 overflow-auto border-2 rounded h-10",
+        "px-2 py-1 overflow-auto border-2 rounded h-12",
         props.value.ok ? "border-info" : "border-error"
       )}
       onClick={() => {
@@ -40,7 +40,11 @@ export function Progress(props: { value: ProgressItem[]; pipeline: Pipeline }) {
       }
     }
   }, [props.value])
-  const end = currentProgressIndex === props.pipeline.nodes.length - 1
+  const end =
+    currentProgressIndex === props.pipeline.nodes.length - 1 ||
+    (currentProgressIndex &&
+      props.value[currentProgressIndex] &&
+      !props.value[currentProgressIndex].ok)
   useEffect(() => {
     if (!scrollableWrapper.current) return
     const nextProgressItemElement = scrollableWrapper.current.querySelector(
@@ -63,36 +67,41 @@ export function Progress(props: { value: ProgressItem[]; pipeline: Pipeline }) {
     [end, currentChoosedIndex, currentProgressIndex]
   )
   return (
-    <div ref={scrollableWrapper} className="overflow-x-auto space-y-2">
-      <ul className="steps px-2">
-        {props.pipeline.nodes.map((item, index) => (
-          <li
-            key={index}
-            data-index={index}
-            className={clsx(
-              "step",
-              props.value[index]
-                ? !props.value[index].ok
-                  ? "step-error"
-                  : "step-info"
-                : props.value[index - 1] && !props.value[index - 1].ok
-                ? "step-primary"
-                : "",
-              currentChoosedIndex === index &&
-                "cursor-pointer after:outline after:outline-1 after:outline-accent-content"
-            )}
-            onClick={() => {
-              setCurrentChoosedIndex(index)
-            }}
-          >
-            {item.name}
-          </li>
-        ))}
-      </ul>
+    <>
+      <div ref={scrollableWrapper} className="overflow-x-auto mb-2">
+        <ul className="steps px-2">
+          {props.pipeline.nodes.map((item, index) => (
+            <li
+              key={index}
+              data-index={index}
+              className={clsx(
+                "step",
+                props.value[index]
+                  ? !props.value[index].ok
+                    ? "step-error"
+                    : "step-info"
+                  : props.value[index - 1] && !props.value[index - 1].ok
+                  ? "step-primary"
+                  : "",
+                end && props.value[index] && "cursor-pointer",
+                currentChoosedIndex === index &&
+                  "after:outline after:outline-1 after:outline-accent-content"
+              )}
+              onClick={() => {
+                if (end && props.value[index]) {
+                  setCurrentChoosedIndex(index)
+                }
+              }}
+            >
+              {item.name}
+            </li>
+          ))}
+        </ul>
+      </div>
       {displayingProgressIndex !== undefined ? (
         <Result value={props.value[displayingProgressIndex]} />
       ) : null}
-    </div>
+    </>
   )
 }
 
@@ -153,6 +162,14 @@ export function PipelineItem(props: { value: Pipeline }) {
               <li>
                 <a
                   className="py-1 px-2"
+                  onClick={() => navigate(`/${PANEL.PIPELINE}/editor/folk/${props.value.id}`)}
+                >
+                  Folk
+                </a>
+              </li>
+              <li>
+                <a
+                  className="py-1 px-2"
                   onClick={() => {
                     // TODO check the MetaNode only used by this pipeline
                     removePipeline(props.value.id)
@@ -175,6 +192,7 @@ export function PipelineItem(props: { value: Pipeline }) {
           </div>
         </div>
       </div>
+      {props.value.desc && <div className="flex-1 opacity-70">{props.value.desc}</div>}
 
       <div className="flex">
         {inputDefinition ? (

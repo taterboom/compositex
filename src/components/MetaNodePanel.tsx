@@ -2,6 +2,8 @@ import { generatePanelLink, PANEL } from "@/constants/page"
 import { selectMetaNode, selectPipelinesWithMetaNodeIds } from "@/store/selectors"
 import { MetaNode } from "@/store/type"
 import useStore from "@/store/useStore"
+import produce from "immer"
+import { useMemo } from "react"
 import { Routes, Route, useParams, useNavigate, Link } from "react-router-dom"
 import {
   MaterialSymbolsAdd,
@@ -31,6 +33,11 @@ function MetaNodeItem(props: { value: MetaNode }) {
               <li>
                 <Link className="py-1 px-2" to={`editor/${props.value.id}`}>
                   Edit
+                </Link>
+              </li>
+              <li>
+                <Link className="py-1 px-2" to={`editor/folk/${props.value.id}`}>
+                  Folk
                 </Link>
               </li>
               <li>
@@ -94,22 +101,14 @@ function MetaNodesPage() {
   )
 }
 
-function MetaNodeObject() {
+function MetaNodeCreate() {
   const navigate = useNavigate()
-  const { id } = useParams()
-  const editedMetaNode = useStore(selectMetaNode(id))
   const addMetaNode = useStore((state) => state.addMetaNode)
-  const updateMetaNode = useStore((state) => state.updateMetaNode)
   return (
     <div>
       <MetaNodeEditor
-        value={editedMetaNode?._raw}
         onSubmit={(value) => {
-          if (editedMetaNode) {
-            updateMetaNode(editedMetaNode.id, value)
-          } else {
-            addMetaNode(value)
-          }
+          addMetaNode(value)
           // TODO Toast
           navigate(`/${PANEL.NODE}`)
         }}
@@ -118,12 +117,62 @@ function MetaNodeObject() {
   )
 }
 
+function MetaNodeUpdate() {
+  const navigate = useNavigate()
+  const { id } = useParams()
+  const edittingMetaNode = useStore(selectMetaNode(id))
+  const updateMetaNode = useStore((state) => state.updateMetaNode)
+  return (
+    <div>
+      {edittingMetaNode ? (
+        <MetaNodeEditor
+          value={edittingMetaNode._raw}
+          onSubmit={(value) => {
+            updateMetaNode(edittingMetaNode.id, value)
+            // TODO Toast
+            navigate(`/${PANEL.NODE}`)
+          }}
+        />
+      ) : null}
+    </div>
+  )
+}
+
+function MetaNodeFolk() {
+  const navigate = useNavigate()
+  const addMetaNode = useStore((state) => state.addMetaNode)
+  const { id } = useParams()
+  const beFolkedMetaNode = useStore(selectMetaNode(id))
+  const folkedMetaNode = useMemo(
+    () =>
+      beFolkedMetaNode &&
+      produce(beFolkedMetaNode, (draft) => {
+        draft.config.name = "(Folk)" + draft.config.name
+      }),
+    [beFolkedMetaNode]
+  )
+  return (
+    <div>
+      {folkedMetaNode ? (
+        <MetaNodeEditor
+          value={folkedMetaNode._raw}
+          onSubmit={(value) => {
+            addMetaNode(value)
+            // TODO Toast
+            navigate(`/${PANEL.NODE}`)
+          }}
+        />
+      ) : null}
+    </div>
+  )
+}
 export function MetaNodePanel() {
   return (
     <Panel>
       <Routes>
-        <Route path="editor/:id" element={<MetaNodeObject />} />
-        <Route path="editor" element={<MetaNodeObject />} />
+        <Route path={"editor/folk/:id"} element={<MetaNodeFolk />} />
+        <Route path={"editor/:id"} element={<MetaNodeUpdate />} />
+        <Route path={"editor"} element={<MetaNodeCreate />} />
         <Route path="" element={<MetaNodesPage />} />
       </Routes>
     </Panel>
