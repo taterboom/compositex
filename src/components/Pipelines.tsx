@@ -94,9 +94,9 @@ export function Progress(props: { value: ProgressItem[]; pipeline: Pipeline }) {
                 props.value[index]
                   ? !props.value[index].ok
                     ? "step-error"
-                    : "step-info"
-                  : props.value[index - 1] && !props.value[index - 1].ok
-                  ? "step-primary"
+                    : "step-success"
+                  : props.value[index - 1] && props.value[index - 1].ok
+                  ? "step-neutral"
                   : "",
                 end && props.value[index] && "cursor-pointer",
                 currentChoosedIndex === index &&

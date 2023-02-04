@@ -184,7 +184,6 @@ function MetaNodeCreate() {
       <MetaNodeEditor
         onSubmit={(value) => {
           addMetaNode(value)
-          // TODO Toast
           navigate(`/${PANEL.NODE}`)
         }}
       />
@@ -204,7 +203,6 @@ function MetaNodeUpdate() {
           value={edittingMetaNode._raw}
           onSubmit={(value) => {
             updateMetaNode(edittingMetaNode.id, value)
-            // TODO Toast
             navigate(`/${PANEL.NODE}`)
           }}
         />
@@ -233,7 +231,6 @@ function MetaNodeFolk() {
           value={folkedMetaNode._raw}
           onSubmit={(value) => {
             addMetaNode(value)
-            // TODO Toast
             navigate(`/${PANEL.NODE}`)
           }}
         />
