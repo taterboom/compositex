@@ -62,19 +62,20 @@ export function Progress(props: { value: ProgressItem[]; pipeline: Pipeline }) {
       !props.value[currentProgressIndex].ok)
   useEffect(() => {
     if (!scrollableWrapper.current) return
-    const nextProgressItemElement = scrollableWrapper.current.querySelector(
-      `[data-index='${(currentProgressIndex === undefined ? -1 : currentProgressIndex) + 1}']`
+    const currentProgressItemElement = scrollableWrapper.current.querySelector(
+      `[data-index='${currentProgressIndex === undefined ? 0 : currentProgressIndex}']`
     )
-    if (nextProgressItemElement) {
-      const scrollableWrapperRight = scrollableWrapper.current.getBoundingClientRect().right
-      const currentProgressItemElementRight = nextProgressItemElement.getBoundingClientRect().right
-      const distance = currentProgressItemElementRight - scrollableWrapperRight
-      if (distance > 0) {
-        scrollableWrapper.current.scrollBy({
-          left: distance,
-          behavior: "smooth",
-        })
-      }
+    if (!currentProgressItemElement) return
+    const nextProgressItemElement = currentProgressItemElement.nextElementSibling
+    const shouldVisibleElement = nextProgressItemElement || currentProgressItemElement
+    const scrollableWrapperRight = scrollableWrapper.current.getBoundingClientRect().right
+    const currentProgressItemElementRight = shouldVisibleElement.getBoundingClientRect().right
+    const distance = currentProgressItemElementRight - scrollableWrapperRight
+    if (distance > 0) {
+      scrollableWrapper.current.scrollBy({
+        left: distance,
+        behavior: "smooth",
+      })
     }
   }, [currentProgressIndex])
   const displayingProgressIndex = useMemo(
@@ -90,7 +91,7 @@ export function Progress(props: { value: ProgressItem[]; pipeline: Pipeline }) {
               key={index}
               data-index={index}
               className={clsx(
-                "step",
+                "step min-w-[5rem]",
                 props.value[index]
                   ? !props.value[index].ok
                     ? "step-error"
