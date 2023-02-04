@@ -1,5 +1,5 @@
 import { ItemType } from "@/constants/dnd"
-import { selectMetaNode } from "@/store/selectors"
+import { selectMetaNode, selectOrderedMetaNodes } from "@/store/selectors"
 import { IdentityNode, MetaNode, Node, Pipeline } from "@/store/type"
 import useStore from "@/store/useStore"
 import { generateIdentityNode, generateIdentityNodeFromNode } from "@/utils/helper"
@@ -46,7 +46,7 @@ function DraggableMetaNode(props: { value: MetaNode; onAdd?: (index?: number) =>
 }
 
 function MetaNodes(props: { onAdd: (metaNode: MetaNode, index?: number) => void }) {
-  const metaNodes = useStore((state) => state.metaNodes)
+  const metaNodes = useStore(selectOrderedMetaNodes)
 
   return (
     <div className="rounded-lg bg-base-300 w-48 p-2 space-y-2 h-fit">

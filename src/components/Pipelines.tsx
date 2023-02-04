@@ -1,5 +1,5 @@
 import { PANEL } from "@/constants/page"
-import { selectMetaNode } from "@/store/selectors"
+import { selectIsPinned, selectMetaNode, selectOrderedPipelines } from "@/store/selectors"
 import { Pipeline, ProgressItem } from "@/store/type"
 import useStore from "@/store/useStore"
 import clsx from "classnames"
@@ -109,6 +109,8 @@ export function PipelineItem(props: { value: Pipeline }) {
   const { navigate } = useContext(NavigateContext)
   const [pipelineRunningId, setPipelineRunningId] = useState<string>("")
   const [progress, setProgress] = useState<ProgressItem[] | null>(null)
+  const isPinned = useStore(selectIsPinned(props.value.id))
+  const togglePin = useStore((state) => state.togglePin)
   const runPipeline = useStore((state) => state.runPipeline)
   const removePipeline = useStore((state) => state.removePipeline)
   const exportPipeline = useStore((state) => state.exportPipeline)
@@ -151,6 +153,16 @@ export function PipelineItem(props: { value: Pipeline }) {
               tabIndex={0}
               className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32"
             >
+              <li>
+                <a
+                  className="py-1 px-2"
+                  onClick={() => {
+                    togglePin(props.value.id)
+                  }}
+                >
+                  {isPinned ? "Pinned ✔︎" : "Pin"}
+                </a>
+              </li>
               <li>
                 <a
                   className="py-1 px-2"
@@ -218,7 +230,8 @@ export const NavigateContext = createContext<{ navigate: (...args: any[]) => voi
 })
 
 export function Pipelines({ navigate }: { navigate: (...args: any[]) => void }) {
-  const pipelines = useStore((state) => state.pipelines)
+  const pipelines = useStore(selectOrderedPipelines)
+
   return (
     <NavigateContext.Provider value={{ navigate }}>
       <div>

@@ -49,8 +49,7 @@ const Editor: React.FC<EditorProps> = (props) => {
   return (
     <MonacoEditor
       {...props}
-      height={600}
-      width={512}
+      className="max-w-4xl min-h-[620px]"
       theme="vs-dark"
       language="javascript"
       options={{

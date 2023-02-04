@@ -1,5 +1,10 @@
 import { generatePanelLink, PANEL } from "@/constants/page"
-import { selectMetaNode, selectPipelinesWithMetaNodeIds } from "@/store/selectors"
+import {
+  selectIsPinned,
+  selectMetaNode,
+  selectOrderedMetaNodes,
+  selectPipelinesWithMetaNodeIds,
+} from "@/store/selectors"
 import { MetaNode } from "@/store/type"
 import useStore from "@/store/useStore"
 import produce from "immer"
@@ -14,9 +19,10 @@ import { Panel } from "./common/Panel"
 import { MetaNodeEditor } from "./MetaNodeEditor"
 
 function MetaNodeItem(props: { value: MetaNode }) {
-  const navigare = useNavigate()
+  const isPinned = useStore(selectIsPinned(props.value.id))
   const removeMetaNode = useStore((state) => state.removeMetaNode)
   const relatedPipelines = useStore(selectPipelinesWithMetaNodeIds([props.value.id]))
+  const togglePin = useStore((state) => state.togglePin)
   return (
     <div className="card max-w-[480px] p-4 mt-4 bg-base-200 shadow-xl space-y-2">
       <div className="flex items-center">
@@ -30,6 +36,16 @@ function MetaNodeItem(props: { value: MetaNode }) {
               tabIndex={0}
               className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32"
             >
+              <li>
+                <a
+                  className="py-1 px-2"
+                  onClick={() => {
+                    togglePin(props.value.id)
+                  }}
+                >
+                  {isPinned ? "Pinned ✔︎" : "Pin"}
+                </a>
+              </li>
               <li>
                 <Link className="py-1 px-2" to={`editor/${props.value.id}`}>
                   Edit
@@ -71,7 +87,7 @@ function MetaNodeItem(props: { value: MetaNode }) {
 }
 
 function MetaNodes() {
-  const metaNodes = useStore((state) => state.metaNodes)
+  const metaNodes = useStore(selectOrderedMetaNodes)
   return (
     <div>
       {metaNodes.map((metaNode, index) => (

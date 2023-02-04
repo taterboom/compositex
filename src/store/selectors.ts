@@ -34,3 +34,17 @@ export const selectBundledPipeline = (id: string) => (state: State) => {
   }
   return bundledPipeline
 }
+
+export const selectIsPinned = (id: string) => (state: State) => state.pins.includes(id)
+
+function sortByPins<T extends { id: string }>(object: T[], pins: string[]) {
+  return [...object].sort((a, b) => {
+    const aPinIndex = pins.indexOf(a.id)
+    const bPinIndex = pins.indexOf(b.id)
+    return bPinIndex - aPinIndex
+  })
+}
+
+export const selectOrderedPipelines = (state: State) => sortByPins(state.pipelines, state.pins)
+
+export const selectOrderedMetaNodes = (state: State) => sortByPins(state.metaNodes, state.pins)

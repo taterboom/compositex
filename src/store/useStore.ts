@@ -16,6 +16,7 @@ import { BundledPipeline, MetaNode, Pipeline, ProgressItem } from "./type"
 export type State = {
   metaNodes: MetaNode[]
   pipelines: Pipeline[]
+  pins: string[]
   addMetaNode(metaNodeStr: string): Promise<void>
   installMetaNode(metaNode: MetaNode): void
   removeMetaNode(id: string, related?: boolean): void
@@ -26,6 +27,7 @@ export type State = {
   removePipeline(id: string, related?: boolean): void
   updatePipeline(id: string, pipeline: Omit<Pipeline, "id">): void
   exportPipeline(id: string): void
+  togglePin(id: string): void
 }
 
 const useStore = create<State>()(
@@ -34,6 +36,7 @@ const useStore = create<State>()(
       immer((set, get) => ({
         metaNodes: [] as MetaNode[],
         pipelines: [] as Pipeline[],
+        pins: [],
 
         async addMetaNode(metaNodeStr) {
           const metaNode = await generateMetaNode(metaNodeStr)
@@ -55,9 +58,10 @@ const useStore = create<State>()(
             state.metaNodes = state.metaNodes.filter((item) => item.id !== id)
             if (related) {
               // also remove the pipelines that contains the id
-              state.pipelines = state.pipelines.filter(
-                (pipeline) => pipeline.nodes.findIndex((item) => item.metaId === id) === -1
+              state.pipelines = state.pipelines.filter((pipeline) =>
+                pipeline.nodes.every((item) => item.metaId !== id)
               )
+              state.pins = state.pins.filter((item) => item !== id)
             }
           })
         },
@@ -113,6 +117,7 @@ const useStore = create<State>()(
                 state.metaNodes = state.metaNodes.filter(
                   (item) => !metaNodeOnlyUsed.includes(item.id)
                 )
+                state.pins = state.pins.filter((item) => !metaNodeOnlyUsed.includes(item))
               }
             }
           })
@@ -124,6 +129,15 @@ const useStore = create<State>()(
         exportPipeline(id) {
           const bundledPipeline = selectBundledPipeline(id)(get())
           saveJSON(bundledPipeline, bundledPipeline.name)
+        },
+        togglePin(id) {
+          set((state) => {
+            if (state.pins.includes(id)) {
+              state.pins = state.pins.filter((item) => item !== id)
+            } else {
+              state.pins = state.pins.concat(id)
+            }
+          })
         },
       })),
       persistOptions
