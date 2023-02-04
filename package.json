@@ -15,6 +15,7 @@
     "classnames": "^2.3.2",
     "daisyui": "^2.47.0",
     "file-saver": "^2.0.5",
+    "framer-motion": "^9.0.1",
     "immer": "^9.0.18",
     "monaco-editor": "^0.34.1",
     "react": "^18.2.0",

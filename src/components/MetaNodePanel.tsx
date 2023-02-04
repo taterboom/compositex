@@ -8,8 +8,9 @@ import {
 import { MetaNode } from "@/store/type"
 import useStore from "@/store/useStore"
 import produce from "immer"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { Routes, Route, useParams, useNavigate, Link } from "react-router-dom"
+import { Dialog } from "./common/Dialog"
 import {
   MaterialSymbolsAdd,
   MaterialSymbolsMoreHoriz,
@@ -19,6 +20,7 @@ import { Panel } from "./common/Panel"
 import { MetaNodeEditor } from "./MetaNodeEditor"
 
 function MetaNodeItem(props: { value: MetaNode }) {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const isPinned = useStore(selectIsPinned(props.value.id))
   const removeMetaNode = useStore((state) => state.removeMetaNode)
   const relatedPipelines = useStore(selectPipelinesWithMetaNodeIds([props.value.id]))
@@ -60,8 +62,7 @@ function MetaNodeItem(props: { value: MetaNode }) {
                 <a
                   className="py-1 px-2"
                   onClick={() => {
-                    // TODO check the pipeline used this metaNode
-                    removeMetaNode(props.value.id)
+                    setDeleteDialogOpen(true)
                   }}
                 >
                   Delete
@@ -82,6 +83,64 @@ function MetaNodeItem(props: { value: MetaNode }) {
           </div>
         </div>
       )}
+      <Dialog open={deleteDialogOpen}>
+        <div className="text-lg font-semibold max-w-[400px]">
+          {relatedPipelines.length > 0
+            ? "Some Pipelines contains this node, do you want to delete them?"
+            : "Are you sure to delete the node?"}
+        </div>
+        <div className="opacity-70 my-4">
+          {relatedPipelines.length > 0 ? (
+            <ul>
+              {relatedPipelines.map((item) => (
+                <li key={item.id}>- {item.name}</li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+        <div className="flex flex-col space-y-2 justify-end">
+          <button
+            className="btn btn-sm btn-outline"
+            onClick={() => {
+              setDeleteDialogOpen(false)
+            }}
+          >
+            Cancel
+          </button>
+          {relatedPipelines.length > 0 ? (
+            <>
+              <button
+                className="btn btn-sm btn-error"
+                onClick={() => {
+                  setDeleteDialogOpen(false)
+                  removeMetaNode(props.value.id)
+                }}
+              >
+                just delete the node
+              </button>
+              <button
+                className="btn btn-sm btn-error"
+                onClick={() => {
+                  setDeleteDialogOpen(false)
+                  removeMetaNode(props.value.id, true)
+                }}
+              >
+                delete them and the node
+              </button>
+            </>
+          ) : (
+            <button
+              className="btn btn-sm btn-error"
+              onClick={() => {
+                setDeleteDialogOpen(false)
+                removeMetaNode(props.value.id)
+              }}
+            >
+              Yes
+            </button>
+          )}
+        </div>
+      </Dialog>
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { BundledPipeline } from "./type"
+import { BundledPipeline, MetaNode } from "./type"
 import type { State } from "./useStore"
 
 export const selectMetaNode = (id: any) => (state: State) =>
@@ -48,3 +48,17 @@ function sortByPins<T extends { id: string }>(object: T[], pins: string[]) {
 export const selectOrderedPipelines = (state: State) => sortByPins(state.pipelines, state.pins)
 
 export const selectOrderedMetaNodes = (state: State) => sortByPins(state.metaNodes, state.pins)
+
+export const selectMetaNodesOnlyUsedByPipeline = (id: string) => (state: State) => {
+  const pipeline = state.pipelines.find((item) => item.id === id)
+  const metaNodeOnlyUsed = new Set(pipeline?.nodes.map((item) => item.metaId))
+  const otherPipelines = state.pipelines.filter((item) => item.id !== id)
+  pipeline?.nodes.forEach((item) => {
+    if (otherPipelines.some((p) => p.nodes.some((n) => n.metaId === item.metaId))) {
+      metaNodeOnlyUsed.delete(item.metaId)
+    }
+  })
+  return [...metaNodeOnlyUsed]
+    .map((item) => selectMetaNode(item)(state))
+    .filter((item) => item !== undefined) as MetaNode[]
+}

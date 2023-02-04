@@ -10,7 +10,13 @@ import { persist } from "zustand/middleware"
 import { immer } from "zustand/middleware/immer"
 import { logger } from "./plugins/logger"
 import { persistOptions } from "./plugins/persistOptions"
-import { selectBundledPipeline, selectMetaNode, selectPipeline } from "./selectors"
+import {
+  selectBundledPipeline,
+  selectMetaNode,
+  selectMetaNodesOnlyUsedByPipeline,
+  selectPipeline,
+  selectPipelinesWithMetaNodeIds,
+} from "./selectors"
 import { BundledPipeline, MetaNode, Pipeline, ProgressItem } from "./type"
 
 export type State = {
@@ -53,16 +59,18 @@ const useStore = create<State>()(
             state.metaNodes.push(metaNode)
           })
         },
-        removeMetaNode(id, related = true) {
+        removeMetaNode(id, related = false) {
+          const state = get()
+          if (related) {
+            // also remove the pipelines that contains the id
+            const relatedPipelines = selectPipelinesWithMetaNodeIds([id])(state)
+            relatedPipelines.forEach((item) => {
+              state.removePipeline(item.id)
+            })
+          }
           set((state) => {
             state.metaNodes = state.metaNodes.filter((item) => item.id !== id)
-            if (related) {
-              // also remove the pipelines that contains the id
-              state.pipelines = state.pipelines.filter((pipeline) =>
-                pipeline.nodes.every((item) => item.metaId !== id)
-              )
-              state.pins = state.pins.filter((item) => item !== id)
-            }
+            state.pins = state.pins.filter((item) => item !== id)
           })
         },
         async updateMetaNode(id, metaNodeStr) {
@@ -102,24 +110,15 @@ const useStore = create<State>()(
             state.pipelines[toBeUpdatedIndex] = generatePipeline(pipeline)
           })
         },
-        removePipeline(id, related = true) {
+        removePipeline(id, related = false) {
+          const state = get()
+          if (related) {
+            const metaNodeOnlyUsed = selectMetaNodesOnlyUsedByPipeline(id)(state)
+            metaNodeOnlyUsed.forEach((item) => state.removeMetaNode(item.id))
+          }
           set((state) => {
-            const toBeRemovedPipeline = state.pipelines.find((item) => item.id)
             state.pipelines = state.pipelines.filter((item) => item.id !== id)
-            if (related) {
-              const metaNodeOnlyUsed: string[] = []
-              toBeRemovedPipeline?.nodes.forEach((item) => {
-                if (!state.pipelines.some((p) => p.nodes.some((n) => n.metaId === item.metaId))) {
-                  metaNodeOnlyUsed.push(item.metaId)
-                }
-              })
-              if (metaNodeOnlyUsed.length > 0) {
-                state.metaNodes = state.metaNodes.filter(
-                  (item) => !metaNodeOnlyUsed.includes(item.id)
-                )
-                state.pins = state.pins.filter((item) => !metaNodeOnlyUsed.includes(item))
-              }
-            }
+            state.pins = state.pins.filter((item) => item !== id)
           })
         },
         runPipeline(id, input, onProgress) {

@@ -3,6 +3,7 @@ import {
   MaterialSymbolsHomeRounded,
   MaterialSymbolsUploadRounded,
 } from "@/components/common/icons"
+import { ToastRoot } from "@/components/common/Toast"
 import { Pipelines } from "@/components/Pipelines"
 import { PANEL } from "@/constants/page"
 import { plugins, setupTerminal } from "@/plugins"
@@ -50,5 +51,6 @@ function App() {
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <HashRouter>
     <App />
+    <ToastRoot />
   </HashRouter>
 )

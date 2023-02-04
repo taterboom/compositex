@@ -1,9 +1,24 @@
 import { PANEL } from "@/constants/page"
-import { selectIsPinned, selectMetaNode, selectOrderedPipelines } from "@/store/selectors"
+import {
+  selectIsPinned,
+  selectMetaNode,
+  selectMetaNodesOnlyUsedByPipeline,
+  selectOrderedPipelines,
+} from "@/store/selectors"
 import { Pipeline, ProgressItem } from "@/store/type"
 import useStore from "@/store/useStore"
 import clsx from "classnames"
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react"
+import {
+  createContext,
+  PropsWithChildren,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
+import { createPortal } from "react-dom"
+import { Dialog } from "./common/Dialog"
 import { MaterialSymbolsMoreHoriz, MaterialSymbolsPlayArrowRounded } from "./common/icons"
 import { TypeDefinitionView } from "./TypeDefinitionView"
 
@@ -110,11 +125,13 @@ export function PipelineItem(props: { value: Pipeline }) {
   const [pipelineRunningId, setPipelineRunningId] = useState<string>("")
   const [progress, setProgress] = useState<ProgressItem[] | null>(null)
   const isPinned = useStore(selectIsPinned(props.value.id))
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const togglePin = useStore((state) => state.togglePin)
   const runPipeline = useStore((state) => state.runPipeline)
   const removePipeline = useStore((state) => state.removePipeline)
   const exportPipeline = useStore((state) => state.exportPipeline)
   const firstMetaNode = useStore(selectMetaNode(props.value.nodes[0].metaId))
+  const metaNodesOnlyUsed = useStore(selectMetaNodesOnlyUsedByPipeline(props.value.id))
   const inputRef = useRef()
   const inputDefinition = firstMetaNode?.config.input
   useEffect(() => {
@@ -183,8 +200,7 @@ export function PipelineItem(props: { value: Pipeline }) {
                 <a
                   className="py-1 px-2"
                   onClick={() => {
-                    // TODO check the MetaNode only used by this pipeline
-                    removePipeline(props.value.id)
+                    setDeleteDialogOpen(true)
                   }}
                 >
                   Delete
@@ -221,6 +237,65 @@ export function PipelineItem(props: { value: Pipeline }) {
           <Progress key={pipelineRunningId} value={progress} pipeline={props.value} />
         </>
       )}
+
+      <Dialog open={deleteDialogOpen}>
+        <div className="text-lg font-semibold max-w-[400px]">
+          {metaNodesOnlyUsed.length > 0
+            ? "Some Nodes are only used by this pipeline, do you want to delete them?"
+            : "Are you sure to delete the pipeline?"}
+        </div>
+        <div className="opacity-70 my-4">
+          {metaNodesOnlyUsed.length > 0 ? (
+            <ul>
+              {metaNodesOnlyUsed.map((item) => (
+                <li key={item.id}>- {item.config.name}</li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+        <div className="flex flex-col space-y-2 justify-end">
+          <button
+            className="btn btn-sm btn-outline"
+            onClick={() => {
+              setDeleteDialogOpen(false)
+            }}
+          >
+            Cancel
+          </button>
+          {metaNodesOnlyUsed.length > 0 ? (
+            <>
+              <button
+                className="btn btn-sm btn-error"
+                onClick={() => {
+                  setDeleteDialogOpen(false)
+                  removePipeline(props.value.id)
+                }}
+              >
+                just delete the pipeline
+              </button>
+              <button
+                className="btn btn-sm btn-error"
+                onClick={() => {
+                  setDeleteDialogOpen(false)
+                  removePipeline(props.value.id, true)
+                }}
+              >
+                delete them and the pipeline
+              </button>
+            </>
+          ) : (
+            <button
+              className="btn btn-sm btn-error"
+              onClick={() => {
+                setDeleteDialogOpen(false)
+                removePipeline(props.value.id)
+              }}
+            >
+              Yes
+            </button>
+          )}
+        </div>
+      </Dialog>
     </div>
   )
 }

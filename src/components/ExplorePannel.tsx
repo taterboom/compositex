@@ -15,7 +15,7 @@ function MetaNodeItem(props: { value: MetaNode }) {
   const installMetaNode = useStore((state) => state.installMetaNode)
   return (
     <div className="card max-w-[480px] p-4 mt-4 bg-base-200 shadow-xl space-y-2">
-      <div>{metaNode.config.name}</div>
+      <div className="text-lg font-semibold">{metaNode.config.name}</div>
       <div>{metaNode.config.desc}</div>
       <div>Installed? {localMetaNode ? "YES" : "NO"}</div>
       <button
