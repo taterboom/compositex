@@ -1,4 +1,4 @@
-import { generatePanelLink, PANEL } from "@/constants/page"
+import { PANEL } from "@/constants/page"
 import {
   selectIsPinned,
   selectMetaNode,
@@ -9,7 +9,7 @@ import { MetaNode } from "@/store/type"
 import useStore from "@/store/useStore"
 import produce from "immer"
 import { useMemo, useState } from "react"
-import { Routes, Route, useParams, useNavigate, Link } from "react-router-dom"
+import { Link, Route, Routes, useNavigate, useParams } from "react-router-dom"
 import { Dialog } from "./common/Dialog"
 import {
   MaterialSymbolsAdd,

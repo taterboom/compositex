@@ -1,4 +1,3 @@
-import { BundledPipeline } from "@/store/type"
 import { isMetaNode } from "@/utils/helper"
 import React, { useMemo, useState } from "react"
 import { Panel } from "./common/Panel"

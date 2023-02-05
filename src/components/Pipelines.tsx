@@ -8,16 +8,7 @@ import {
 import { Pipeline, ProgressItem } from "@/store/type"
 import useStore from "@/store/useStore"
 import clsx from "classnames"
-import {
-  createContext,
-  PropsWithChildren,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react"
-import { createPortal } from "react-dom"
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { Dialog } from "./common/Dialog"
 import { MaterialSymbolsMoreHoriz, MaterialSymbolsPlayArrowRounded } from "./common/icons"
 import { TypeDefinitionView } from "./TypeDefinitionView"

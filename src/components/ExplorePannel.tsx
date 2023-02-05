@@ -38,7 +38,7 @@ export function MetaNodeItem(props: { value: MetaNode }) {
 function TinyMetaNode(props: { value: MetaNode }) {
   const localMetaNode = useStore(selectMetaNode(props.value.id))
   return (
-    <div className="flex">
+    <div className="flex space-x-1">
       <div>{props.value.config.name}</div>
       <div> Installed? {localMetaNode ? "YES" : "NO"}</div>
     </div>
