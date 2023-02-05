@@ -1,10 +1,11 @@
 import { BundledPipeline } from "@/store/type"
-import React, { useState } from "react"
+import { isMetaNode } from "@/utils/helper"
+import React, { useMemo, useState } from "react"
 import { Panel } from "./common/Panel"
-import { PipelineItem } from "./ExplorePannel"
+import { MetaNodeItem, PipelineItem } from "./ExplorePannel"
 
 function ImportEditor() {
-  const [jsonObject, setJsonObject] = useState<BundledPipeline | null>(null)
+  const [jsonObject, setJsonObject] = useState<any | null>(null)
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) {
@@ -25,6 +26,16 @@ function ImportEditor() {
     }
     fileReader.readAsText(file)
   }
+  const objects = useMemo(() => {
+    if (jsonObject) {
+      if (Array.isArray(jsonObject)) {
+        return jsonObject
+      } else {
+        return [jsonObject]
+      }
+    }
+    return []
+  }, [jsonObject])
   return (
     <div>
       <input
@@ -33,7 +44,13 @@ function ImportEditor() {
         accept=".json"
         onChange={handleChange}
       />
-      {jsonObject && <PipelineItem value={jsonObject} />}
+      {objects.map((item, index) =>
+        isMetaNode(item) ? (
+          <MetaNodeItem key={index} value={item} />
+        ) : (
+          <PipelineItem key={index} value={item} />
+        )
+      )}
     </div>
   )
 }

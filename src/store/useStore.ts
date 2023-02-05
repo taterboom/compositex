@@ -5,6 +5,7 @@ import {
   runPipeline,
 } from "@/utils/helper"
 import { saveJSON } from "@/utils/save"
+import { generateTimeStr } from "@/utils/time"
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import { immer } from "zustand/middleware/immer"
@@ -33,6 +34,7 @@ export type State = {
   removePipeline(id: string, related?: boolean): void
   updatePipeline(id: string, pipeline: Omit<Pipeline, "id">): void
   exportPipeline(id: string): void
+  export(): void
   togglePin(id: string): void
 }
 
@@ -42,7 +44,7 @@ const useStore = create<State>()(
       immer((set, get) => ({
         metaNodes: [] as MetaNode[],
         pipelines: [] as Pipeline[],
-        pins: [],
+        pins: [] as string[],
 
         async addMetaNode(metaNodeStr) {
           const metaNode = await generateMetaNode(metaNodeStr)
@@ -92,14 +94,11 @@ const useStore = create<State>()(
           if (localPipeline) {
             return
           }
+          const relatedMetaNodes = getRelatedMetaNodes(bundledPipeline)
+          relatedMetaNodes.forEach((toBeInstalledMetaNode) => {
+            state.installMetaNode(toBeInstalledMetaNode)
+          })
           set((state) => {
-            const relatedMetaNodes = getRelatedMetaNodes(bundledPipeline)
-            relatedMetaNodes.forEach((toBeInstalledMetaNode) => {
-              // check if already install metaNodes
-              if (state.metaNodes.every((item) => item.id !== toBeInstalledMetaNode.id)) {
-                state.metaNodes.push(toBeInstalledMetaNode)
-              }
-            })
             state.pipelines.push(bundledPipeline)
           })
         },
@@ -128,6 +127,17 @@ const useStore = create<State>()(
         exportPipeline(id) {
           const bundledPipeline = selectBundledPipeline(id)(get())
           saveJSON(bundledPipeline, bundledPipeline.name)
+        },
+        export() {
+          const state = get()
+          const bundledPipelines = state.pipelines.map((item) =>
+            selectBundledPipeline(item.id)(state)
+          )
+          const metaNodes = state.metaNodes
+          return saveJSON(
+            [...bundledPipelines, ...metaNodes],
+            `compositex-backup-${generateTimeStr()}`
+          )
         },
         togglePin(id) {
           set((state) => {

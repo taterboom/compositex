@@ -7,9 +7,7 @@ import { MaterialSymbolsDownloadDoneRounded, MaterialSymbolsDownloadRounded } fr
 import { Panel } from "./common/Panel"
 import clsx from "classnames"
 
-// TODO: check id and name before add
-
-function MetaNodeItem(props: { value: MetaNode }) {
+export function MetaNodeItem(props: { value: MetaNode }) {
   const metaNode = props.value
   const localMetaNode = useStore(selectMetaNode(props.value.id))
   const installMetaNode = useStore((state) => state.installMetaNode)

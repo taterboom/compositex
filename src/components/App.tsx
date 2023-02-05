@@ -6,6 +6,7 @@ import { ExplorePannel } from "./ExplorePannel"
 import { ImportPanel } from "./ImportPanel"
 import { MetaNodePanel } from "./MetaNodePanel"
 import { PipelinePanel } from "./PipelinePanel"
+import { SettingsPanel } from "./SettingsPanel"
 
 setupTerminal(plugins)
 
@@ -49,6 +50,14 @@ export function App() {
             Import
           </a>
         </li>
+        <li>
+          <a
+            className={clsx(checkPanelActive(PANEL.SETTINGS) && "active")}
+            onClick={() => navigate(generatePanelLink(PANEL.SETTINGS))}
+          >
+            Settings
+          </a>
+        </li>
       </ul>
       <div className="flex-1">
         <Routes>
@@ -56,6 +65,7 @@ export function App() {
           <Route path={`${PANEL.NODE}/*`} element={<MetaNodePanel />}></Route>
           <Route path={`${PANEL.EXPLORE}/*`} element={<ExplorePannel />}></Route>
           <Route path={`${PANEL.IMPORT}/*`} element={<ImportPanel />}></Route>
+          <Route path={`${PANEL.SETTINGS}/*`} element={<SettingsPanel />}></Route>
           <Route path="*" element={<Navigate to={`${PANEL.PIPELINE}`} replace />}></Route>
         </Routes>
       </div>

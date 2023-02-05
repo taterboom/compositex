@@ -3,6 +3,7 @@ export const PANEL = {
   NODE: "node",
   EXPLORE: "explore",
   IMPORT: "import",
+  SETTINGS: "settings",
 }
 
 export function getCurrentPanel(panelStr: string) {
