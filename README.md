@@ -418,8 +418,8 @@ document.querySelector(".assetPreview img").src
   /** @type {CompositeX.MetaNodeConfig} */
   const nodeConfig = {
     config: {
-      name: "PlainShanbayOSS",
-      desc: "OSS by http",
+      name: "ShanbayOSS",
+      desc: "Upload img to shanbay OSS",
       input: { type: "string" },
       output: { type: "any" },
       options: [{ name: "code", type: "string", default: "storage_media_image" }],

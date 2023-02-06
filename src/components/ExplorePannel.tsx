@@ -52,7 +52,7 @@ export function PipelineItem(props: { value: BundledPipeline }) {
   const relatedMetaNodes = useMemo(() => getRelatedMetaNodes(pipeline), [pipeline])
   return (
     <div key={pipeline.id} className="card max-w-[480px] p-4 mt-4 bg-base-200 shadow-xl space-y-2">
-      <div>{pipeline.name}</div>
+      <div className="text-lg font-semibold">{pipeline.name}</div>
       <div>{pipeline.desc}</div>
       <div>installed? {localPipeline ? "YES" : "NO"}</div>
       <div>

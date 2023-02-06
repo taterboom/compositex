@@ -1,10 +1,9 @@
 import FetchPlugin from "./FetchPlugin"
 import LodashGetPlugin from "./LodashGetPlugin"
 import mainWorldPlugin from "./MainWorldPlugin"
-import ShanbayOssPlugin from "./ShanbayOssPlugin"
 import { Plugin } from "./type"
 
-export const plugins = [mainWorldPlugin, LodashGetPlugin, FetchPlugin, ShanbayOssPlugin]
+export const plugins = [mainWorldPlugin, LodashGetPlugin, FetchPlugin]
 
 export function setupTerminal(plugins: Plugin[]) {
   plugins.forEach((plugin) => {
