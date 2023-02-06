@@ -412,3 +412,98 @@ document.querySelector(".assetPreview img").src
   return nodeConfig
 })()
 ```
+
+```javascript
+;(function () {
+  /** @type {CompositeX.MetaNodeConfig} */
+  const nodeConfig = {
+    config: {
+      name: "PlainShanbayOSS",
+      desc: "OSS by http",
+      input: { type: "string" },
+      output: { type: "any" },
+      options: [{ name: "code", type: "string", default: "storage_media_image" }],
+    },
+    async run(input, options, context) {
+      async function cryptoSign(k, m) {
+        const enc = new TextEncoder("utf-8")
+        const key = await window.crypto.subtle.importKey(
+          "raw",
+          enc.encode(k),
+          {
+            name: "HMAC",
+            hash: { name: "SHA-1" },
+          },
+          false,
+          ["sign", "verify"]
+        )
+        const encodedText = enc.encode(m)
+        const signature = await window.crypto.subtle.sign("HMAC", key, encodedText)
+        const signatureText = btoa(String.fromCharCode(...new Uint8Array(signature)))
+        return signatureText
+      }
+
+      async function upload(token, file) {
+        const callback = {
+          callbackUrl: token.callback_url,
+          callbackBody: token.callback_body,
+          callbackBodyType: "application/json",
+        }
+        const gmtStr = new Date().toGMTString()
+        const aliHeaders = {
+          "x-oss-callback": btoa(JSON.stringify(callback)),
+          "x-oss-callback-var": btoa(JSON.stringify(token.callback_vars)),
+          "x-oss-date": gmtStr,
+          "x-oss-security-token": token.Credentials.SecurityToken,
+        }
+        let signatureStr = "PUT\n"
+        signatureStr += "\n"
+        signatureStr += file.type + "\n"
+        signatureStr += gmtStr + "\n"
+        signatureStr +=
+          Object.entries(aliHeaders)
+            .map(([k, v]) => `${k}:${v}`)
+            .join("\n") + "\n"
+        signatureStr += "/" + token.bucket_name + "/" + token.key
+        const signature = await cryptoSign(token.Credentials.AccessKeySecret, signatureStr)
+        const authorization = "OSS " + token.Credentials.AccessKeyId + ":" + signature
+        const apiUrlObj = new URL(token.endpoint)
+        apiUrlObj.host = token.bucket_name + "." + apiUrlObj.host
+        apiUrlObj.pathname = token.key
+        const apiUrl = apiUrlObj.toString()
+        return context
+          .fetch(apiUrl, {
+            method: "PUT",
+            headers: {
+              "Content-Type": file.type,
+              Date: gmtStr,
+              authorization: authorization,
+              ...aliHeaders,
+            },
+            body: file,
+          })
+          .then((res) => res.data)
+      }
+      const { file, ext } = await context.fetch(input).then((res) => {
+        const immetype = res.data.type
+        let ext = immetype.split("/")[1]
+        if (ext === "svg+xml") {
+          ext = "svg"
+        }
+        console.log(ext, immetype)
+        return {
+          file: new File([res.data], "compositex-shanbay-oss." + ext, { type: immetype }),
+          ext,
+        }
+      })
+      const { data: token } = await context
+        .fetch(
+          `https://apiv3.shanbay.com/media/token?code=${options.code}&green_check=true&media_type=${ext}`
+        )
+        .then((res) => res.data)
+      return upload(token, file)
+    },
+  }
+  return nodeConfig
+})()
+```

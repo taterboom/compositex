@@ -82,7 +82,7 @@ export function Progress(props: { value: ProgressItem[]; pipeline: Pipeline }) {
               key={index}
               data-index={index}
               className={clsx(
-                "step min-w-[5rem]",
+                "step !min-w-[5rem]",
                 props.value[index]
                   ? !props.value[index].ok
                     ? "step-error"
