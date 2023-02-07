@@ -14,7 +14,7 @@ export function TypeDefinitionView({
       if (!definition.enumItems) return null
       return (
         <select
-          className="select w-full max-w-sm"
+          className="select select-bordered w-full max-w-sm"
           value={value}
           onChange={(e) => {
             onChange?.(e.target.value)

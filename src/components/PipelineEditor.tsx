@@ -193,14 +193,14 @@ function Nodes({
   const isActive = canDrop && isOver
   let backgroundClass = "bg-base-300"
   if (isActive) {
-    backgroundClass = "bg-base-300/70"
+    backgroundClass = "bg-accent/70"
   } else if (canDrop) {
-    backgroundClass = "bg-base-300/40"
+    backgroundClass = "bg-accent-focus/70"
   }
   return (
-    <div ref={drop} className={"rounded-lg p-4 w-[500] space-y-2 bg-base-300 " + backgroundClass}>
+    <div ref={drop} className={"rounded-lg p-4 w-[450px] space-y-2 bg-base-300 " + backgroundClass}>
       {nodes.length === 0 && (
-        <div className="text-center text-accent text-lg">
+        <div className="text-center text-accent-content text-lg">
           Drag and Drop or click + to add nodes from left
         </div>
       )}

@@ -72,6 +72,10 @@ function execInMainWorld(chunks: Array<string | string[]>) {
   }
 }
 
+function evalInMainWorld(code: string) {
+  return eval(code)
+}
+
 const NAME = "mainWorld"
 const MESSAGE_TYPE_SEND = generateMessageType(NAME, "SEND")
 const MESSAGE_TYPE_RES = generateMessageType(NAME, "RES")
@@ -87,12 +91,25 @@ function initFetchMainWorld() {
         const res = await chrome.tabs.query({ currentWindow: true, active: true })
         const activeTabId = res[0]?.id
         if (!activeTabId) return
-        const chunks = traverse(Parser.parse(event.data.payload.expression, { ecmaVersion: 2020 }))
-        const execResult = await chrome.scripting.executeScript({
-          target: { tabId: activeTabId },
-          func: execInMainWorld,
-          args: [chunks],
-        })
+        const { type = "eval" } = event.data.payload?.options ?? {}
+        let execResult
+        if (type === "eval") {
+          execResult = await chrome.scripting.executeScript({
+            target: { tabId: activeTabId },
+            func: evalInMainWorld,
+            args: [event.data.payload.expression],
+            world: "MAIN",
+          })
+        } else {
+          const chunks = traverse(
+            Parser.parse(event.data.payload.expression, { ecmaVersion: 2020 })
+          )
+          execResult = await chrome.scripting.executeScript({
+            target: { tabId: activeTabId },
+            func: execInMainWorld,
+            args: [chunks],
+          })
+        }
         if (execResult[0]) {
           const result = execResult[0].result
           if (result?.startsWith?.(ERROR_PREFIX)) {
@@ -118,29 +135,44 @@ function initFetchMainWorld() {
 
 const sendMessage = generateMessageSender(window.parent)
 
+const MainWorldMetaNode = {
+  id: `${NAME}`,
+  _raw: String.raw`(function () {
+    /** @type {CompositeX.MetaNodeConfig} */
+    const nodeConfig = {
+      config: {
+        name: "MainWorld",
+        desc: "Get main world info",
+        input: { type: "string" },
+        output: { type: "any" },
+        options: [
+          { name: "expression", type: "string" },
+          { 
+            name: "type",
+            desc: "choose eval if website support it or choose exec which has limits",
+            type: "enum",
+            enumItems: [{ name: "eval", value: "eval"}, { name: "exec", value: "exec" }],
+            default: "eval",
+          }
+        ],
+      },
+      run(input, options, context) {
+        return context.${NAME}(input || options.expression, { type: options.type })
+      },
+    }
+    return nodeConfig
+  })()`,
+}
+
 const mainWorld: Plugin = {
   name: NAME,
   terminal: initFetchMainWorld,
-  context: (expression: string) => sendMessage(MESSAGE_TYPE_SEND, { expression }, { echo: true }),
+  context: (expression: string, options?: { type: "eval" | "exec" }) =>
+    sendMessage(MESSAGE_TYPE_SEND, { expression, options }, { echo: true }),
   contextType: {
-    context: `(expression: string) => Promise<any>`,
+    context: `(expression: string, options?: { type: 'eval' | 'exec' }) => Promise<any>`,
   },
-  metaNodeRaw: String.raw`(function () {
-  /** @type {CompositeX.MetaNodeConfig} */
-  const nodeConfig = {
-    config: {
-      name: "MainWorld",
-      desc: "Get main world info",
-      input: { type: "string" },
-      output: { type: "any" },
-      options: [{ name: "expression", type: "string" }],
-    },
-    run(input, options, context) {
-      return context.${NAME}(input || options.expression)
-    },
-  }
-  return nodeConfig
-})()`,
+  metaNodes: [MainWorldMetaNode],
 }
 
 export default mainWorld

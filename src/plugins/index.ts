@@ -1,7 +1,7 @@
 import FetchPlugin from "./FetchPlugin"
 import LodashGetPlugin from "./LodashGetPlugin"
 import mainWorldPlugin from "./MainWorldPlugin"
-import { Plugin } from "./type"
+import { Plugin, PluginMetaNode } from "./type"
 
 export const plugins = [mainWorldPlugin, LodashGetPlugin, FetchPlugin]
 
@@ -43,9 +43,7 @@ export function setupTypeStr(plugins: Plugin[]) {
 
 export function setupMetaNode(plugins: Plugin[]) {
   return plugins
-    .filter((plugin) => plugin.metaNodeRaw)
-    .map((plugin) => ({
-      id: plugin.name,
-      _raw: plugin.metaNodeRaw,
-    }))
+    .map((plugin) => plugin.metaNodes)
+    .filter(Boolean)
+    .flat() as PluginMetaNode[]
 }
