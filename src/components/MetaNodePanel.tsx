@@ -150,7 +150,7 @@ function MetaNodes() {
   return (
     <div>
       {metaNodes.map((metaNode, index) => (
-        <MetaNodeItem key={index} value={metaNode}></MetaNodeItem>
+        <MetaNodeItem key={metaNode.id} value={metaNode}></MetaNodeItem>
       ))}
     </div>
   )
