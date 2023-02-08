@@ -82,7 +82,7 @@ export function Progress(props: { value: ProgressItem[]; pipeline: Pipeline }) {
               key={index}
               data-index={index}
               className={clsx(
-                "step !min-w-[5rem]",
+                "step !min-w-[5rem] break-all",
                 props.value[index]
                   ? !props.value[index].ok
                     ? "step-error"
@@ -126,11 +126,6 @@ export function PipelineItem(props: { value: Pipeline }) {
   const metaNodesOnlyUsed = useStore(selectMetaNodesOnlyUsedByPipeline(props.value.id))
   const inputRef = useRef()
   const inputDefinition = firstMetaNode?.config.input
-  useEffect(() => {
-    if (pipelineRunningId) {
-      setProgress([])
-    }
-  }, [pipelineRunningId])
   return (
     <div className="card max-w-[480px] p-4 mt-4 bg-base-200 shadow-xl space-y-2">
       <div className="flex items-center">
@@ -142,6 +137,7 @@ export function PipelineItem(props: { value: Pipeline }) {
               const runningId = props.value.id + Date.now()
               if (runningId === pipelineRunningId) return
               setPipelineRunningId(runningId)
+              setProgress([])
               const res = await runPipeline(props.value.id, inputRef.current, (progressData) => {
                 setProgress((logs) => {
                   const newLogs = logs ? [...logs] : []
