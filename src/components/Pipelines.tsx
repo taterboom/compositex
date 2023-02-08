@@ -24,7 +24,7 @@ function Result(props: { value: ProgressItem }) {
   return (
     <div
       className={clsx(
-        "px-2 py-1 overflow-auto border-2 rounded h-12",
+        "px-2 py-1 overflow-auto border-2 rounded h-14",
         props.value.ok ? "border-info" : "border-error"
       )}
       onClick={() => {

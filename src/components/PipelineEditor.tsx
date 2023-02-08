@@ -13,7 +13,7 @@ import { TypeDefinitionView } from "./TypeDefinitionView"
 function DraggableMetaNode(props: { value: MetaNode; onAdd?: (index?: number) => void }) {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemType.META,
-    item: props.value,
+    item: () => ({ ...props.value }),
     end: (item, monitor) => {
       const dropResult = monitor.getDropResult()
       // @ts-ignore
@@ -29,7 +29,6 @@ function DraggableMetaNode(props: { value: MetaNode; onAdd?: (index?: number) =>
   const opacity = isDragging ? 0.4 : 1
   return (
     <div
-      key={props.value.id}
       ref={drag}
       className="group relative bg-base-100 rounded py-1 px-2 cursor-grab"
       style={{ opacity }}
@@ -77,52 +76,60 @@ function NodeEditor(props: {
   const ref = useRef<HTMLDivElement>(null)
   const previewRef = useRef<HTMLDivElement>(null)
   const metaNode = useStore(selectMetaNode(props.value.metaId))
-  const [{ isDragging }, drag, preview] = useDrag(() => ({
-    type: ItemType.NODE,
-    item: () => ({ index: props.index, ...props.value }),
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
+  const [{ isDragging }, drag, preview] = useDrag(
+    () => ({
+      type: ItemType.NODE,
+      item: () => {
+        return { index: props.index, ...props.value }
+      },
+      collect: (monitor) => ({
+        isDragging: monitor.isDragging(),
+      }),
     }),
-  }))
+    [props.index]
+  )
   const [{ handlerId }, drop] = useDrop<
     IdentityNode & { index: number; resolved: boolean },
     void,
     { handlerId: any | null }
-  >({
-    accept: [ItemType.NODE, ItemType.META],
-    collect(monitor) {
-      return {
-        handlerId: monitor.getHandlerId(),
-      }
+  >(
+    {
+      accept: [ItemType.NODE, ItemType.META],
+      collect(monitor) {
+        return {
+          handlerId: monitor.getHandlerId(),
+        }
+      },
+      hover(item, monitor) {
+        if (!ref.current || !previewRef.current) {
+          return
+        }
+        const dragIndex = item.index
+        const hoverIndex = props.index
+        if (dragIndex === hoverIndex) {
+          return
+        }
+        const hoverBoundingRect = previewRef.current.getBoundingClientRect()
+        const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
+        const clientOffset = monitor.getClientOffset()
+        const hoverClientY = clientOffset!.y - hoverBoundingRect.top
+        if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+          return
+        }
+        if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+          return
+        }
+        props.onMoveNode?.(dragIndex, hoverIndex, item)
+        // Note: we're mutating the monitor item here!
+        // Generally it's better to avoid mutations,
+        // but it's good here for the sake of performance
+        // to avoid expensive index searches.
+        item.index = hoverIndex
+        item.resolved = true
+      },
     },
-    hover(item, monitor) {
-      if (!ref.current || !previewRef.current) {
-        return
-      }
-      const dragIndex = item.index
-      const hoverIndex = props.index
-      if (dragIndex === hoverIndex) {
-        return
-      }
-      const hoverBoundingRect = previewRef.current.getBoundingClientRect()
-      const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
-      const clientOffset = monitor.getClientOffset()
-      const hoverClientY = clientOffset!.y - hoverBoundingRect.top
-      if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
-        return
-      }
-      if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
-        return
-      }
-      props.onMoveNode?.(dragIndex, hoverIndex, item)
-      // Note: we're mutating the monitor item here!
-      // Generally it's better to avoid mutations,
-      // but it's good here for the sake of performance
-      // to avoid expensive index searches.
-      item.index = hoverIndex
-      item.resolved = true
-    },
-  })
+    [props.index]
+  )
   drag(ref)
   preview(drop(previewRef))
   return (
