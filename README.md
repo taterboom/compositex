@@ -3,31 +3,6 @@
   /** @type {CompositeX.MetaNodeConfig} */
   const nodeConfig = {
     config: {
-      name: "ShanbayOss",
-      desc: "Shanbay Oss uploader",
-      input: { type: "string" },
-      output: { type: "string" },
-      options: [{ name: "service", type: "string", default: "cms_comment_image" }],
-    },
-    run(input, options, context) {
-      return context
-        .fetch(input)
-        .then((res) => {
-          console.log(res)
-          return new File([res], "??.png", { type: res.type })
-        })
-        .then((file) => context.alioss({ file, service: options.service }))
-    },
-  }
-  return nodeConfig
-})()
-```
-
-```javascript
-;(function () {
-  /** @type {CompositeX.MetaNodeConfig} */
-  const nodeConfig = {
-    config: {
       name: "Tinypng",
       desc: "Compress via Tinypng",
       input: { type: "string" },
@@ -380,26 +355,32 @@ document.querySelector(".assetPreview img").src
     },
     run(input, options, context) {
       return (async function (existUrl, format, densityScale) {
-        const apiPrefix = "https://api.zeplin.io/v2"
-        const mainWorldCookie = await context.mainWorld("document.cookie")
-        const token = mainWorldCookie
-          .split(";")
-          .find((item) => item.trim().startsWith("userToken="))
-          .split("userToken=")[1]
         const mainWorldPath = await context.mainWorld("location.pathname")
         const path = mainWorldPath.replace("project", "projects").replace("screen", "screens")
-        const versionsRes = await context
-          .fetch(`${apiPrefix}${path}/versions`, { headers: { "zeplin-token": token } })
-          .then((res) => res.data)
-        const versionId = versionsRes.versions[0]._id
-        const assetsUrlRes = await context
-          .fetch(`${apiPrefix}${path}/versions/${versionId}/assets`, {
-            headers: { "zeplin-token": token },
-          })
-          .then((res) => res.data)
-        const asstesUrl = assetsUrlRes.url
-        // TODO cache layers
-        const layers = await context.fetch(asstesUrl).then((res) => res.data)
+        const mainWorldLayersCache = await context.mainWorld("window.__layers_cache__")
+        let layers
+        if (mainWorldLayersCache) {
+          layers = mainWorldLayersCache
+        } else {
+          const apiPrefix = "https://api.zeplin.io/v2"
+          const mainWorldCookie = await context.mainWorld("document.cookie")
+          const token = mainWorldCookie
+            .split(";")
+            .find((item) => item.trim().startsWith("userToken="))
+            .split("userToken=")[1]
+          const versionsRes = await context
+            .fetch(`${apiPrefix}${path}/versions`, { headers: { "zeplin-token": token } })
+            .then((res) => res.data)
+          const versionId = versionsRes.versions[0]._id
+          const assetsUrlRes = await context
+            .fetch(`${apiPrefix}${path}/versions/${versionId}/assets`, {
+              headers: { "zeplin-token": token },
+            })
+            .then((res) => res.data)
+          const asstesUrl = assetsUrlRes.url
+          layers = await context.fetch(asstesUrl).then((res) => res.data)
+          context.mainWorld("window.__layers_cache__=" + JSON.stringify(layers))
+        }
         const layer = layers.find((item) =>
           item.contents.some((content) => content.url === existUrl)
         )

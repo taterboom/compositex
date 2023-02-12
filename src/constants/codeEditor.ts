@@ -4,11 +4,6 @@ const pluginsContextType = setupTypeStr(plugins)
 
 export const NAMESPACE_TYPE = `
 declare namespace CompositeX {
-    export type FetchResult = {
-      ok: boolean
-      status: number
-      data: any
-    }
     ${pluginsContextType.global}
     export type RunningContext = {
       ${pluginsContextType.context}
