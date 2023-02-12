@@ -28,6 +28,7 @@ export type State = {
   installMetaNode(metaNode: MetaNode): void
   removeMetaNode(id: string, related?: boolean): void
   updateMetaNode(id: string, metaNodeStr: string): Promise<void>
+  exportMetaNode(id: string): void
   addPipeline(pipeline: Omit<Pipeline, "id">): void
   installPipeline(bundledPipeline: BundledPipeline): void
   runPipeline(id: string, input: any, onProgress?: (data: ProgressItem) => void): Promise<any>
@@ -82,6 +83,11 @@ const useStore = create<State>()(
             if (toBeUpdatedIndex === -1) return
             state.metaNodes[toBeUpdatedIndex] = metaNode
           })
+        },
+        exportMetaNode(id) {
+          const metaNode = selectMetaNode(id)(get())
+          if (!metaNode) return
+          return saveJSON(metaNode, metaNode.config.name)
         },
         addPipeline(pipeline) {
           set((state) => {

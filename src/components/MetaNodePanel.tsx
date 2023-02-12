@@ -23,6 +23,7 @@ function MetaNodeItem(props: { value: MetaNode }) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const isPinned = useStore(selectIsPinned(props.value.id))
   const removeMetaNode = useStore((state) => state.removeMetaNode)
+  const exportMetaNode = useStore((state) => state.exportMetaNode)
   const relatedPipelines = useStore(selectPipelinesWithMetaNodeIds([props.value.id]))
   const togglePin = useStore((state) => state.togglePin)
   return (
@@ -68,7 +69,11 @@ function MetaNodeItem(props: { value: MetaNode }) {
                   Delete
                 </a>
               </li>
-              <li>
+              <li
+                onClick={() => {
+                  exportMetaNode(props.value.id)
+                }}
+              >
                 <a className="py-1 px-2 disabled">Export</a>
               </li>
             </ul>
