@@ -1,7 +1,19 @@
-console.log("?", window?.location)
+import {
+  MESSAGE_INSTALL_FROM_WEBSITE,
+  MESSAGE_INSTALL_FROM_WEBSITE_REQUEST,
+} from "@/constants/message"
+import { PANEL } from "@/constants/page"
 
-fetch("https://apiv3.shanbay.com/bayuser/user")
-  .then((res) => res.json())
-  .then(console.log)
+let toBeInstalled: any
 
-export default { name: 123 }
+chrome.runtime.onMessage.addListener(async (e, sender, sendResponse) => {
+  if (e?.type === MESSAGE_INSTALL_FROM_WEBSITE) {
+    toBeInstalled = e?.data
+    chrome.tabs.create({ url: `options.html#/${PANEL.EXTERNAL_INSTALL}` })
+  }
+  if (e?.type === MESSAGE_INSTALL_FROM_WEBSITE_REQUEST) {
+    sendResponse(toBeInstalled)
+  }
+})
+
+export {}

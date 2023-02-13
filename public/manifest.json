@@ -16,5 +16,21 @@
   "host_permissions": ["<all_urls>"],
   "sandbox": {
     "pages": ["sandbox.html"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://localhost/*"],
+      "js": ["content-script.global.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["inject-global.global.js"],
+      "matches": ["http://localhost/*"]
+    }
+  ],
+  "background": {
+    "service_worker": "background.global.js"
   }
 }

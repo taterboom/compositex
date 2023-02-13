@@ -1,6 +1,6 @@
 import { ItemType } from "@/constants/dnd"
 import { selectMetaNode, selectOrderedMetaNodes } from "@/store/selectors"
-import { IdentityNode, MetaNode, Node, Pipeline } from "@/store/type"
+import { BundledPipeline, IdentityNode, MetaNode, Node, Pipeline } from "@/store/type"
 import useStore from "@/store/useStore"
 import { generateIdentityNode, generateIdentityNodeFromNode } from "@/utils/helper"
 import produce from "immer"
@@ -63,7 +63,7 @@ function MetaNodes(props: { onAdd: (metaNode: MetaNode, index?: number) => void 
 }
 
 function NodeEditor(props: {
-  value: IdentityNode
+  value: IdentityNode | BundledPipeline["nodes"][0]
   index: number
   onChange?: (value: Pick<Node, "options" | "name">) => void
   onMoveNode?: (
@@ -75,7 +75,8 @@ function NodeEditor(props: {
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const previewRef = useRef<HTMLDivElement>(null)
-  const metaNode = useStore(selectMetaNode(props.value.metaId))
+  const metaNodeInStore = useStore(selectMetaNode(props.value.metaId))
+  const metaNode = metaNodeInStore || (props.value as BundledPipeline["nodes"][0]).metaNode
   const [{ isDragging }, drag, preview] = useDrag(
     () => ({
       type: ItemType.NODE,
@@ -230,12 +231,17 @@ function Nodes({
 export function PipelineEditor(props: {
   value?: Pipeline
   onSubmit?: (pipeline: Omit<Pipeline, "id">) => void
+  displayOnly?: Boolean
 }) {
   const [name, setName] = useState(props.value?.name || "")
   const [desc, setDesc] = useState(props.value?.desc || "")
-  const [nodes, setNodes] = useState<IdentityNode[]>(
+  const [nodes, _setNodes] = useState<IdentityNode[]>(
     () => props.value?.nodes.map(generateIdentityNodeFromNode) || []
   )
+  const setNodes: typeof _setNodes = (...args) => {
+    if (props.displayOnly) return
+    _setNodes(...args)
+  }
   const addNode = useCallback((metaNode: MetaNode, index?: number) => {
     setNodes((v) => {
       const node = generateIdentityNode(metaNode)
@@ -289,6 +295,7 @@ export function PipelineEditor(props: {
         <div className="space-y-4">
           <div>
             <input
+              disabled={!!props.displayOnly}
               type="text"
               placeholder="Type Name"
               className="input input-bordered w-full max-w-sm "
@@ -298,6 +305,7 @@ export function PipelineEditor(props: {
           </div>
           <div>
             <input
+              disabled={!!props.displayOnly}
               type="text"
               placeholder="Type Desc"
               className="input input-bordered w-full max-w-sm "
@@ -306,7 +314,7 @@ export function PipelineEditor(props: {
             />
           </div>
           <div className="flex space-x-4">
-            <MetaNodes onAdd={addNode} />
+            {!props.displayOnly && <MetaNodes onAdd={addNode} />}
             <Nodes
               nodes={nodes}
               onUpdateNode={updateNode}
@@ -314,16 +322,18 @@ export function PipelineEditor(props: {
               onRemoveNode={removeNode}
             />
           </div>
-          <div>
-            <button
-              className="btn btn-wide btn-primary"
-              onClick={() => {
-                props.onSubmit?.({ nodes, name, desc })
-              }}
-            >
-              Save
-            </button>
-          </div>
+          {!props.displayOnly && (
+            <div>
+              <button
+                className="btn btn-wide btn-primary"
+                onClick={() => {
+                  props.onSubmit?.({ nodes, name, desc })
+                }}
+              >
+                Save
+              </button>
+            </div>
+          )}
         </div>
       </DndProvider>
     </div>

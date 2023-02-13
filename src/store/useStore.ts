@@ -20,10 +20,13 @@ import {
 } from "./selectors"
 import { BundledPipeline, MetaNode, Pipeline, ProgressItem } from "./type"
 
+type CompositeXObject = MetaNode | BundledPipeline
+
 export type State = {
   metaNodes: MetaNode[]
   pipelines: Pipeline[]
   pins: string[]
+  currentInspectObject: CompositeXObject | null
   addMetaNode(metaNodeStr: string): Promise<void>
   installMetaNode(metaNode: MetaNode): void
   removeMetaNode(id: string, related?: boolean): void
@@ -37,6 +40,7 @@ export type State = {
   exportPipeline(id: string): void
   export(): void
   togglePin(id: string): void
+  updateCurrentInspectObject(object: CompositeXObject | null): void
 }
 
 const useStore = create<State>()(
@@ -46,6 +50,7 @@ const useStore = create<State>()(
         metaNodes: [] as MetaNode[],
         pipelines: [] as Pipeline[],
         pins: [] as string[],
+        currentInspectObject: null,
 
         async addMetaNode(metaNodeStr) {
           const metaNode = await generateMetaNode(metaNodeStr)
@@ -152,6 +157,11 @@ const useStore = create<State>()(
             } else {
               state.pins = state.pins.concat(id)
             }
+          })
+        },
+        updateCurrentInspectObject(object) {
+          set({
+            currentInspectObject: object,
           })
         },
       })),

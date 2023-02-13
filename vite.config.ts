@@ -16,9 +16,12 @@ export default defineConfig({
         options: path.resolve(__dirname, "options.html"),
         popup: path.resolve(__dirname, "popup.html"),
         sandbox: path.resolve(__dirname, "sandbox.html"),
-        background: path.resolve(__dirname, "src/extension-src/background.ts"),
+      },
+      output: {
+        entryFileNames: `assets/[name].js`,
+        chunkFileNames: `assets/[name].js`,
+        assetFileNames: `assets/[name].[ext]`,
       },
     },
-    manifest: "output.json",
   },
 })

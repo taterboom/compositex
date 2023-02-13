@@ -4,6 +4,8 @@ export const PANEL = {
   EXPLORE: "explore",
   IMPORT: "import",
   SETTINGS: "settings",
+  INSPECT: "inspect",
+  EXTERNAL_INSTALL: "external-install",
 }
 
 export function getCurrentPanel(panelStr: string) {

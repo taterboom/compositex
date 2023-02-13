@@ -3,7 +3,9 @@ import { plugins, setupTerminal } from "@/plugins"
 import clsx from "classnames"
 import { Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom"
 import { ExplorePannel } from "./ExplorePannel"
+import ExternalInstallPanel from "./ExternalInstallPanel"
 import { ImportPanel } from "./ImportPanel"
+import InspectPanel from "./InspectPanel"
 import { MetaNodePanel } from "./MetaNodePanel"
 import { PipelinePanel } from "./PipelinePanel"
 import { SettingsPanel } from "./SettingsPanel"
@@ -66,6 +68,8 @@ export function App() {
           <Route path={`${PANEL.EXPLORE}/*`} element={<ExplorePannel />}></Route>
           <Route path={`${PANEL.IMPORT}/*`} element={<ImportPanel />}></Route>
           <Route path={`${PANEL.SETTINGS}/*`} element={<SettingsPanel />}></Route>
+          <Route path={`${PANEL.INSPECT}/*`} element={<InspectPanel />}></Route>
+          <Route path={`${PANEL.EXTERNAL_INSTALL}/*`} element={<ExternalInstallPanel />}></Route>
           <Route path="*" element={<Navigate to={`${PANEL.PIPELINE}`} replace />}></Route>
         </Routes>
       </div>

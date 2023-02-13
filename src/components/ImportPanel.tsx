@@ -1,7 +1,8 @@
 import { isMetaNode } from "@/utils/helper"
 import React, { useMemo, useState } from "react"
 import { Panel } from "./common/Panel"
-import { MetaNodeItem, PipelineItem } from "./ExplorePannel"
+import { PipelineItem } from "./common/PipelineItem"
+import { MetaNodeItem } from "./common/MetaNodeItem"
 
 function ImportEditor() {
   const [jsonObject, setJsonObject] = useState<any | null>(null)
