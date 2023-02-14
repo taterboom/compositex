@@ -358,10 +358,11 @@ document.querySelector(".assetPreview img").src
         const mainWorldPath = await context.mainWorld("location.pathname")
         const path = mainWorldPath.replace("project", "projects").replace("screen", "screens")
         const mainWorldLayersCache = await context.mainWorld("window.__layers_cache__")
-        let layers
-        if (mainWorldLayersCache) {
-          layers = mainWorldLayersCache
-        } else {
+        const layerFromCache = mainWorldLayersCache?.find?.((item) =>
+          item.contents.some((content) => content.url === existUrl)
+        )
+        let layer = layerFromCache
+        if (!layer) {
           const apiPrefix = "https://api.zeplin.io/v2"
           const mainWorldCookie = await context.mainWorld("document.cookie")
           const token = mainWorldCookie
@@ -378,13 +379,12 @@ document.querySelector(".assetPreview img").src
             })
             .then((res) => res.data)
           const asstesUrl = assetsUrlRes.url
-          layers = await context.fetch(asstesUrl).then((res) => res.data)
+          const layers = await context.fetch(asstesUrl).then((res) => res.data)
           context.mainWorld("window.__layers_cache__=" + JSON.stringify(layers))
+          layer = layers.find((item) => item.contents.some((content) => content.url === existUrl))
         }
-        const layer = layers.find((item) =>
-          item.contents.some((content) => content.url === existUrl)
-        )
-        return layer?.contents.find(
+        if (!layer) throw new Error("cannot found layer")
+        return layer.contents.find(
           (item) => item.format === format && item.densityScale === densityScale
         )
       })(input, options.format, options.densityScale)
