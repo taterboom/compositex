@@ -15,7 +15,7 @@ export function setupContext<T>(plugins: Plugin[], context: T) {
   const pluginContext: any = {}
   plugins.forEach((plugin) => {
     if (plugin.context) {
-      pluginContext[plugin.name] = plugin.context
+      pluginContext[plugin.name] = plugin.context()
     }
   })
   return {

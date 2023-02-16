@@ -10,7 +10,9 @@ import { Plugin } from "../type"
 type FetchResult = {
   ok: boolean
   status: number
-  data: any
+  statusText: string
+  headers: Record<string, string>
+  body: ArrayBuffer
 }
 
 const NAME = "fetch"
@@ -25,19 +27,13 @@ export function initFetchTerminal() {
     if (event.data.type === MESSAGE_TYPE_SEND) {
       try {
         const res = await fetch(...(event.data.payload as [any]))
-        let data
-        const contentType = res.headers.get("content-type")
-        if (contentType?.includes("json")) {
-          data = await res.json()
-        } else if (contentType?.includes("image")) {
-          data = await res.blob()
-        } else {
-          data = await res.text()
-        }
+        const arrayBuffer = await res.arrayBuffer()
         const fetchResult: FetchResult = {
           ok: res.ok,
           status: res.status,
-          data,
+          statusText: res.statusText,
+          headers: Object.fromEntries([...res.headers.entries()]),
+          body: arrayBuffer,
         }
         const resultPayload: StatusMessage<FetchResult> = {
           ok: fetchResult.ok,
@@ -60,14 +56,17 @@ const sendMessage = generateMessageSender(window.parent)
 const FetchPlugin: Plugin = {
   name: NAME,
   terminal: initFetchTerminal,
-  context: (...args: any[]) => sendMessage<FetchResult>(MESSAGE_TYPE_SEND, args, { echo: true }),
+  context: () => {
+    const mockFetch = (...args: any[]) =>
+      sendMessage<FetchResult>(MESSAGE_TYPE_SEND, args, { echo: true }).then((res) => {
+        const { body, ...options } = res
+        return new Response(body, options)
+      })
+    window.fetch = mockFetch
+    return mockFetch
+  },
   contextType: {
-    global: `type FetchResult = {
-    ok: boolean
-    status: number
-    data: any
-}`,
-    context: `(...args[]) => Promise<FetchResult>`,
+    context: `typeof fetch`,
   },
 }
 

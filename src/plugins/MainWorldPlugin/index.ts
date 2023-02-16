@@ -167,7 +167,7 @@ const MainWorldMetaNode = {
 const mainWorld: Plugin = {
   name: NAME,
   terminal: initFetchMainWorld,
-  context: (expression: string, options?: { type: "eval" | "exec" }) =>
+  context: () => (expression: string, options?: { type: "eval" | "exec" }) =>
     sendMessage(MESSAGE_TYPE_SEND, { expression, options }, { echo: true }),
   contextType: {
     context: `(expression: string, options?: { type: 'eval' | 'exec' }) => Promise<any>`,
