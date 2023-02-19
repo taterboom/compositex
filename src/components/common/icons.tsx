@@ -1,5 +1,16 @@
 import { SVGProps } from "react"
 
+export function Logo(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg width="1em" height="1em" viewBox="0 0 130 130" {...props}>
+      <path
+        d="M122.19 0.620117H115.13C111.18 0.620117 107.96 3.83011 107.93 7.77011H80.7801C60.4701 7.77011 43.9401 24.2901 43.9401 44.6101V79.3101H22.0801C22.0601 75.3601 18.8401 72.1601 14.8801 72.1601H7.82013C3.85013 72.1601 0.620117 75.3901 0.620117 79.3601V122.19C0.620117 126.16 3.85013 129.39 7.82013 129.39H14.8801C18.8501 129.39 22.0801 126.16 22.0801 122.19V121.44H49.2301C69.5401 121.44 86.0701 104.92 86.0701 84.6001V49.9001H107.93V50.6501C107.93 54.6201 111.16 57.8501 115.13 57.8501H122.19C126.16 57.8501 129.39 54.6201 129.39 50.6501V7.82011C129.38 3.84011 126.16 0.620117 122.19 0.620117ZM14.9201 122.19C14.9201 122.21 14.9001 122.24 14.8701 122.24H7.81012C7.79012 122.24 7.76013 122.22 7.76013 122.19V79.3601C7.76013 79.3401 7.78012 79.3101 7.81012 79.3101H14.8701C14.8901 79.3101 14.9201 79.3301 14.9201 79.3601V121.44V122.19ZM86.0601 42.7401H78.9101V49.8901V84.5901C78.9101 100.96 65.5901 114.27 49.2301 114.27H22.0801V86.4501H43.9401H51.0901V79.3001V44.6001C51.0901 28.2301 64.4101 14.9201 80.7701 14.9201H107.92V42.7401H86.0601ZM122.23 50.6501C122.23 50.6701 122.21 50.7001 122.18 50.7001H115.12C115.1 50.7001 115.07 50.6801 115.07 50.6501V49.9001V7.82011C115.07 7.80011 115.09 7.77011 115.12 7.77011H122.18C122.2 7.77011 122.23 7.79011 122.23 7.82011V50.6501Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
 export function MaterialSymbolsMoreHoriz(props: SVGProps<SVGSVGElement>) {
   return (
     <svg width="1em" height="1em" viewBox="0 0 24 24" {...props}>
@@ -94,4 +105,68 @@ export function MaterialSymbolsDownloadDoneRounded(props: SVGProps<SVGSVGElement
       ></path>
     </svg>
   )
+}
+
+export function IconParkOutlineInstall(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg width="1em" height="1em" viewBox="0 0 48 48" {...props}>
+      <g fill="none" stroke="currentColor" strokeLinejoin="round" strokeWidth="4">
+        <path strokeLinecap="round" d="M41.4 11.551L36.333 5H11.667l-5.083 6.551"></path>
+        <path d="M6 13a2 2 0 0 1 2-2h32a2 2 0 0 1 2 2v27a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3V13Z"></path>
+        <path strokeLinecap="round" d="m32 27l-8 8l-8-8m7.992-8v16"></path>
+      </g>
+    </svg>
+  )
+}
+
+export const MENU = {
+  IconParkSolidConnectionPointTwo(props: SVGProps<SVGSVGElement>) {
+    return (
+      <svg width="1em" height="1em" viewBox="0 0 48 48" {...props}>
+        <mask id="ipSConnectionPointTwo0">
+          <g fill="none" stroke="#fff" strokeLinejoin="round" strokeWidth="4">
+            <path
+              strokeLinecap="round"
+              d="M36 8H13c-3 0-9 2-9 8s6 8 9 8h22c3 0 9 2 9 8s-6 8-9 8H12"
+            ></path>
+            <path
+              fill="#fff"
+              d="M40 12a4 4 0 1 0 0-8a4 4 0 0 0 0 8ZM8 44a4 4 0 1 0 0-8a4 4 0 0 0 0 8Z"
+            ></path>
+          </g>
+        </mask>
+        <path fill="currentColor" d="M0 0h48v48H0z" mask="url(#ipSConnectionPointTwo0)"></path>
+      </svg>
+    )
+  },
+  FluentPipeline20Filled(props: SVGProps<SVGSVGElement>) {
+    return (
+      <svg width="1em" height="1em" viewBox="0 0 20 20" {...props}>
+        <path
+          fill="currentColor"
+          d="M2 5.5a1.5 1.5 0 0 1 3 0v9a1.5 1.5 0 0 1-3-.001v-9Zm13 0v9a1.5 1.5 0 0 0 3 0v-9a1.5 1.5 0 0 0-3 0ZM14 14V6H6v8h8Z"
+        ></path>
+      </svg>
+    )
+  },
+  MaterialSymbolsExplore(props: SVGProps<SVGSVGElement>) {
+    return (
+      <svg width="1em" height="1em" viewBox="0 2.4 24 24" {...props}>
+        <path
+          fill="currentColor"
+          d="m6.5 19.9l7.5-3.5l3.5-7.5l-7.5 3.5l-3.5 7.5Zm5.5-4.5q-.425 0-.713-.287T11 14.4q0-.425.288-.713T12 13.4q.425 0 .713.288T13 14.4q0 .425-.288.713T12 15.4Zm0 9q-2.075 0-3.9-.787t-3.175-2.138q-1.35-1.35-2.137-3.175T2 14.4q0-2.075.788-3.9t2.137-3.175q1.35-1.35 3.175-2.138T12 4.4q2.075 0 3.9.788t3.175 2.137q1.35 1.35 2.138 3.175T22 14.4q0 2.075-.788 3.9t-2.137 3.175q-1.35 1.35-3.175 2.138T12 24.4Z"
+        ></path>
+      </svg>
+    )
+  },
+  MaterialSymbolsSettingsOutline(props: SVGProps<SVGSVGElement>) {
+    return (
+      <svg width="1em" height="1em" viewBox="0 2.4 24 24" {...props}>
+        <path
+          fill="currentColor"
+          d="m9.25 24.4l-.4-3.2q-.325-.125-.613-.3t-.562-.375L4.7 21.775l-2.75-4.75l2.575-1.95Q4.5 14.9 4.5 14.738v-.675q0-.163.025-.338l-2.575-1.95l2.75-4.75l2.975 1.25q.275-.2.575-.375t.6-.3l.4-3.2h5.5l.4 3.2q.325.125.613.3t.562.375l2.975-1.25l2.75 4.75l-2.575 1.95q.025.175.025.338v.675q0 .162-.05.337l2.575 1.95l-2.75 4.75l-2.95-1.25q-.275.2-.575.375t-.6.3l-.4 3.2h-5.5Zm2.8-6.5q1.45 0 2.475-1.025T15.55 14.4q0-1.45-1.025-2.475T12.05 10.9q-1.475 0-2.488 1.025T8.55 14.4q0 1.45 1.012 2.475T12.05 17.9Zm0-2q-.625 0-1.063-.437T10.55 14.4q0-.625.438-1.063t1.062-.437q.625 0 1.063.438t.437 1.062q0 .625-.438 1.063t-1.062.437ZM12 14.4Zm-1 8h1.975l.35-2.65q.775-.2 1.438-.588t1.212-.937l2.475 1.025l.975-1.7l-2.15-1.625q.125-.35.175-.738t.05-.787q0-.4-.05-.788t-.175-.737l2.15-1.625l-.975-1.7l-2.475 1.05q-.55-.575-1.212-.962t-1.438-.588L13 6.4h-1.975l-.35 2.65q-.775.2-1.437.588t-1.213.937L5.55 9.55l-.975 1.7l2.15 1.6q-.125.375-.175.75t-.05.8q0 .4.05.775t.175.75l-2.15 1.625l.975 1.7l2.475-1.05q.55.575 1.213.963t1.437.587L11 22.4Z"
+        ></path>
+      </svg>
+    )
+  },
 }

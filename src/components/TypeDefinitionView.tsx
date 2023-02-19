@@ -14,7 +14,7 @@ export function TypeDefinitionView({
       if (!definition.enumItems) return null
       return (
         <select
-          className="select select-bordered w-full max-w-sm"
+          className="select select-bordered select-sm w-full max-w-md"
           value={value}
           onChange={(e) => {
             onChange?.(e.target.value)
@@ -33,7 +33,7 @@ export function TypeDefinitionView({
         <input
           type="number"
           placeholder={definition.desc}
-          className="input input-bordered w-full max-w-sm"
+          className="input input-bordered input-sm w-full max-w-md"
           value={value}
           onChange={(e) => {
             onChange?.(e.target.valueAsNumber)
@@ -46,7 +46,7 @@ export function TypeDefinitionView({
           type="text"
           placeholder={definition.desc}
           value={value}
-          className="input input-bordered w-full max-w-sm"
+          className="input input-bordered input-sm w-full max-w-md"
           onChange={(e) => {
             onChange?.(e.target.value)
           }}

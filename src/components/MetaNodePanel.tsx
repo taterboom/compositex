@@ -10,7 +10,7 @@ import useStore from "@/store/useStore"
 import produce from "immer"
 import { useMemo, useState } from "react"
 import { Link, Route, Routes, useNavigate, useParams } from "react-router-dom"
-import { Dialog } from "./common/Dialog"
+import { Popup } from "./common/Popup"
 import {
   MaterialSymbolsAdd,
   MaterialSymbolsMoreHoriz,
@@ -27,7 +27,7 @@ function MetaNodeItem(props: { value: MetaNode }) {
   const relatedPipelines = useStore(selectPipelinesWithMetaNodeIds([props.value.id]))
   const togglePin = useStore((state) => state.togglePin)
   return (
-    <div className="card max-w-[480px] p-4 mt-4 bg-base-200 shadow-xl space-y-2">
+    <div className="card max-w-[480px] p-4 mt-4 bg-base-300 shadow-xl space-y-2">
       <div className="flex items-center">
         <div className="flex-1 text-lg font-semibold">{props.value.config.name}</div>
         <div className="flex">
@@ -37,7 +37,7 @@ function MetaNodeItem(props: { value: MetaNode }) {
             </label>
             <ul
               tabIndex={0}
-              className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32"
+              className="dropdown-content menu p-2 shadow bg-base-300 rounded-box w-32"
             >
               <li>
                 <a
@@ -88,7 +88,7 @@ function MetaNodeItem(props: { value: MetaNode }) {
           </div>
         </div>
       )}
-      <Dialog open={deleteDialogOpen}>
+      <Popup open={deleteDialogOpen}>
         <div className="text-lg font-semibold max-w-[400px]">
           {relatedPipelines.length > 0
             ? "Some Pipelines contains this node, do you want to delete them?"
@@ -145,7 +145,7 @@ function MetaNodeItem(props: { value: MetaNode }) {
             </button>
           )}
         </div>
-      </Dialog>
+      </Popup>
     </div>
   )
 }

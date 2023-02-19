@@ -5,7 +5,9 @@ import Editor from "./common/CodeEditor"
 type MetaNodeEditorProps = {
   value?: string
   onSubmit?: (value: string) => void
-  displayOnly?: Boolean
+  onCancel?: (value: string) => void
+  displayOnly?: boolean
+  cancelable?: boolean
 }
 export function MetaNodeEditor(props: MetaNodeEditorProps) {
   const ref = useRef<string>(props.value ?? DEMO)
@@ -13,7 +15,10 @@ export function MetaNodeEditor(props: MetaNodeEditorProps) {
   return (
     <div className="space-y-4">
       {!props.displayOnly && (
-        <div>
+        <div className="space-x-4">
+          <button className="btn btn-wide" onClick={() => props.onCancel?.(ref.current)}>
+            Cancel
+          </button>
           <button
             className="btn btn-wide btn-primary"
             onClick={() => props.onSubmit?.(ref.current)}

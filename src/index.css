@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    @apply bg-base-300;
+    background-image: url("data:image/svg+xml,%3Csvg width='50' height='40' viewBox='0 0 50 40' fill='%232c2c2c' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4.08008 1.17981H2.91992V0.00976562H1.75V1.17981H0.580078V2.34973H1.75V3.50977H2.91992V2.34973H4.08008V1.17981Z' fill='%232c2c2c'/%3E%3C/svg%3E%0A");
+    background-repeat: space;
+}
+
 body {
     font-size: 100%;
 }

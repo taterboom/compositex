@@ -2,6 +2,7 @@ import { generatePanelLink, PANEL } from "@/constants/page"
 import { plugins, setupTerminal } from "@/plugins"
 import clsx from "classnames"
 import { Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom"
+import { Logo, MENU } from "./common/icons"
 import { ExplorePannel } from "./ExplorePannel"
 import ExternalInstallPanel from "./ExternalInstallPanel"
 import { ImportPanel } from "./ImportPanel"
@@ -19,49 +20,59 @@ export function App() {
 
   return (
     <div className="flex min-h-screen">
-      <ul className="menu bg-base-200 w-48 p-2 rounded-box">
-        <li>
-          <a
-            className={clsx(checkPanelActive(PANEL.PIPELINE) && "active")}
-            onClick={() => navigate(generatePanelLink(PANEL.PIPELINE))}
-          >
-            Pipeline
-          </a>
-        </li>
-        <li>
-          <a
-            className={clsx(checkPanelActive(PANEL.NODE) && "active")}
-            onClick={() => navigate(generatePanelLink(PANEL.NODE))}
-          >
-            Node
-          </a>
-        </li>
-        <li>
-          <a
-            className={clsx(checkPanelActive(PANEL.EXPLORE) && "active")}
-            onClick={() => navigate(generatePanelLink(PANEL.EXPLORE))}
-          >
-            Explore
-          </a>
-        </li>
-        <li>
-          <a
-            className={clsx(checkPanelActive(PANEL.IMPORT) && "active")}
-            onClick={() => navigate(generatePanelLink(PANEL.IMPORT))}
-          >
-            Import
-          </a>
-        </li>
-        <li>
-          <a
-            className={clsx(checkPanelActive(PANEL.SETTINGS) && "active")}
-            onClick={() => navigate(generatePanelLink(PANEL.SETTINGS))}
-          >
-            Settings
-          </a>
-        </li>
-      </ul>
-      <div className="flex-1">
+      <div className="w-48 p-2 bg-base-100">
+        <div className="flex flex-col items-center space-y-1 p-2">
+          <Logo className="text-2xl" />
+          <span className="text-lg">CompisteX</span>
+        </div>
+        <ul className="menu menu-compact space-y-1 p-2 rounded-box">
+          <li>
+            <a
+              className={clsx(checkPanelActive(PANEL.PIPELINE) && "active")}
+              onClick={() => navigate(generatePanelLink(PANEL.PIPELINE))}
+            >
+              <MENU.IconParkSolidConnectionPointTwo />
+              <span>Pipeline</span>
+            </a>
+          </li>
+          <li>
+            <a
+              className={clsx(checkPanelActive(PANEL.NODE) && "active")}
+              onClick={() => navigate(generatePanelLink(PANEL.NODE))}
+            >
+              <MENU.FluentPipeline20Filled />
+              <span>Node</span>
+            </a>
+          </li>
+          <li>
+            <a
+              className={clsx(checkPanelActive(PANEL.EXPLORE) && "active")}
+              onClick={() => navigate(generatePanelLink(PANEL.EXPLORE))}
+            >
+              <MENU.MaterialSymbolsExplore />
+              <span>Explore</span>
+            </a>
+          </li>
+          <li>
+            <a
+              className={clsx(checkPanelActive(PANEL.IMPORT) && "active")}
+              onClick={() => navigate(generatePanelLink(PANEL.IMPORT))}
+            >
+              <span>Import 待移除</span>
+            </a>
+          </li>
+          <li>
+            <a
+              className={clsx(checkPanelActive(PANEL.SETTINGS) && "active")}
+              onClick={() => navigate(generatePanelLink(PANEL.SETTINGS))}
+            >
+              <MENU.MaterialSymbolsSettingsOutline />
+              <span>Settings</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div className="flex-1 overflow-y-auto">
         <Routes>
           <Route path={`${PANEL.PIPELINE}/*`} element={<PipelinePanel />}></Route>
           <Route path={`${PANEL.NODE}/*`} element={<MetaNodePanel />}></Route>

@@ -1,5 +1,6 @@
 import { plugins, setupMetaNode } from "@/plugins"
 import { generateMetaNode } from "@/utils/helper"
+import { MetaNode } from "../type"
 
 const pluginMetaNodes = setupMetaNode(plugins)
 
@@ -26,7 +27,7 @@ export const persistOptions = {
         }
         // TODO patch generate
         const metaNodes = await Promise.all(
-          localMetaNodes.map((item: any) => generateMetaNode(item._raw, item.id))
+          localMetaNodes.map((item: any) => generateMetaNode(item._raw, item))
         )
         console.log("initial from storage", metaNodes)
         return {
@@ -44,8 +45,9 @@ export const persistOptions = {
       const str = JSON.stringify({
         state: {
           ...newValue.state,
-          metaNodes: newValue.state.metaNodes.map((item: any) => ({
+          metaNodes: newValue.state.metaNodes.map((item: MetaNode) => ({
             id: item.id,
+            disposable: item.disposable,
             _raw: item._raw,
           })),
         },
@@ -53,5 +55,18 @@ export const persistOptions = {
       localStorage.setItem(name, str)
     },
     removeItem: (name: string) => localStorage.removeItem(name),
+  },
+  onRehydrateStorage: (state: any) => {
+    console.log("hydration starts", state)
+
+    // optional
+    return (state: any, error: any) => {
+      if (error) {
+        console.log("an error happened during hydration", error)
+      } else {
+        console.log("hydration finished")
+        state.clearUnusedDisposableMetaNodes()
+      }
+    }
   },
 }

@@ -9,7 +9,7 @@ import { Pipeline, ProgressItem } from "@/store/type"
 import useStore from "@/store/useStore"
 import clsx from "classnames"
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react"
-import { Dialog } from "./common/Dialog"
+import { Popup } from "./common/Popup"
 import { MaterialSymbolsMoreHoriz, MaterialSymbolsPlayArrowRounded } from "./common/icons"
 import { TypeDefinitionView } from "./TypeDefinitionView"
 
@@ -122,12 +122,12 @@ export function PipelineItem(props: { value: Pipeline }) {
   const runPipeline = useStore((state) => state.runPipeline)
   const removePipeline = useStore((state) => state.removePipeline)
   const exportPipeline = useStore((state) => state.exportPipeline)
-  const firstMetaNode = useStore(selectMetaNode(props.value.nodes[0].metaId))
+  const firstMetaNode = useStore(selectMetaNode(props.value.nodes[0]?.metaId))
   const metaNodesOnlyUsed = useStore(selectMetaNodesOnlyUsedByPipeline(props.value.id))
   const inputRef = useRef()
   const inputDefinition = firstMetaNode?.config.input
   return (
-    <div className="card max-w-[480px] p-4 mt-4 bg-base-200 shadow-xl space-y-2">
+    <div className="card max-w-[480px] p-4 mt-4 bg-base-300 shadow-xl space-y-2">
       <div className="flex items-center">
         <div className="flex-1 text-lg font-semibold">{props.value.name}</div>
         <div className="flex">
@@ -156,7 +156,7 @@ export function PipelineItem(props: { value: Pipeline }) {
             </label>
             <ul
               tabIndex={0}
-              className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32"
+              className="dropdown-content menu p-2 shadow bg-base-300 rounded-box w-32"
             >
               <li>
                 <a
@@ -226,7 +226,7 @@ export function PipelineItem(props: { value: Pipeline }) {
         </>
       )}
 
-      <Dialog open={deleteDialogOpen}>
+      <Popup open={deleteDialogOpen}>
         <div className="text-lg font-semibold max-w-[400px]">
           {metaNodesOnlyUsed.length > 0
             ? "Some Nodes are only used by this pipeline, do you want to delete them?"
@@ -283,7 +283,7 @@ export function PipelineItem(props: { value: Pipeline }) {
             </button>
           )}
         </div>
-      </Dialog>
+      </Popup>
     </div>
   )
 }

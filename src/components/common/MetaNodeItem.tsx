@@ -10,7 +10,7 @@ export function MetaNodeItem(props: { value: MetaNode }) {
   const localMetaNode = useStore(selectMetaNode(props.value.id))
   const installMetaNode = useStore((state) => state.installMetaNode)
   return (
-    <div className="card max-w-[480px] p-4 mt-4 bg-base-200 shadow-xl space-y-2">
+    <div className="card max-w-[480px] p-4 mt-4 bg-base-300 shadow-xl space-y-2">
       <InspectLink className="text-lg font-semibold" value={metaNode}>
         {metaNode.config.name}
       </InspectLink>

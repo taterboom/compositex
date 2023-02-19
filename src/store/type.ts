@@ -13,6 +13,7 @@ export type RunningContext = any
 
 export type MetaNode = {
   _raw: string
+  disposable?: boolean
   id: string
   config: {
     name: string

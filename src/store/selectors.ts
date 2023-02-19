@@ -37,7 +37,7 @@ export const selectBundledPipeline = (id: string) => (state: State) => {
 
 export const selectIsPinned = (id: string) => (state: State) => state.pins.includes(id)
 
-function sortByPins<T extends { id: string }>(object: T[], pins: string[]) {
+export function sortByPins<T extends { id: string }>(object: T[], pins: string[]) {
   return [...object].sort((a, b) => {
     const aPinIndex = pins.indexOf(a.id)
     const bPinIndex = pins.indexOf(b.id)

@@ -4,7 +4,11 @@ import useStore from "@/store/useStore"
 import produce from "immer"
 import { useMemo } from "react"
 import { Link, Route, Routes, useNavigate, useParams } from "react-router-dom"
-import { MaterialSymbolsAdd, MaterialSymbolsUploadRounded } from "./common/icons"
+import {
+  IconParkOutlineInstall,
+  MaterialSymbolsAdd,
+  MaterialSymbolsUploadRounded,
+} from "./common/icons"
 import { Panel } from "./common/Panel"
 import { PipelineEditor } from "./PipelineEditor"
 import { Pipelines } from "./Pipelines"
@@ -15,13 +19,13 @@ function PipelinePage() {
     <div className="space-y-4">
       <div className="space-x-2">
         <Link to="editor">
-          <button className="btn btn-sm btn-primary">
-            <MaterialSymbolsAdd />
+          <button className="btn btn-sm btn-primary gap-2">
+            <MaterialSymbolsAdd /> Create
           </button>
         </Link>
         <Link to={`/${PANEL.IMPORT}`}>
-          <button className="btn btn-sm btn-primary">
-            <MaterialSymbolsUploadRounded />
+          <button className="btn btn-sm btn-primary gap-2">
+            <IconParkOutlineInstall /> Import
           </button>
         </Link>
       </div>
@@ -96,13 +100,18 @@ function PipelineFolk() {
 
 export function PipelinePanel() {
   return (
-    <Panel>
-      <Routes>
-        <Route path={"editor/folk/:id"} element={<PipelineFolk />} />
-        <Route path={"editor/:id"} element={<PipelineUpdate />} />
-        <Route path={"editor"} element={<PipelineCreate />} />
-        <Route path="/" element={<PipelinePage />} />
-      </Routes>
-    </Panel>
+    <Routes>
+      <Route path={"editor/folk/:id"} element={<PipelineFolk />} />
+      <Route path={"editor/:id"} element={<PipelineUpdate />} />
+      <Route path={"editor"} element={<PipelineCreate />} />
+      <Route
+        path="/"
+        element={
+          <Panel>
+            <PipelinePage />
+          </Panel>
+        }
+      />
+    </Routes>
   )
 }

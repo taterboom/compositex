@@ -26,7 +26,7 @@ export function ExplorePannel() {
           }
           return nodeConfig
         })()`,
-        "from-explore-0"
+        { id: "from-explore-0" }
       )
       const demoPipeline = generatePipeline({
         id: "from-explore-1",

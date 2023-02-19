@@ -3,8 +3,12 @@ import { BundledPipeline, IdentityNode, MetaNode, Node, Pipeline, ProgressItem }
 import { v4 as uuidv4 } from "uuid"
 import { checkMessageValid, requestSandbox } from "./sandboxMessage"
 
-export function generateMetaNode(codeStr: string, id?: string) {
-  return requestSandbox<MetaNode>(MESSAGE_TYPE.Meta, { codeStr, id })
+export function generateMetaNode(codeStr: string, options?: Partial<MetaNode>) {
+  const transferableOptions = {
+    id: options?.id,
+    disposable: options?.disposable,
+  }
+  return requestSandbox<MetaNode>(MESSAGE_TYPE.Meta, { codeStr, options: transferableOptions })
 }
 
 export function runPipeline(

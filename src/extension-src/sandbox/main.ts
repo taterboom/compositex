@@ -16,7 +16,10 @@ class MetaNodeShell {
   id: string
   _raw: string
   _evaled: any
-  constructor(code: string, id: string = uuidv4()) {
+  options: Partial<MetaNode>
+  constructor(code: string, options: Partial<MetaNode> = {}) {
+    const { id = uuidv4(), ...otherOptions } = options
+    this.options = otherOptions
     try {
       this._raw = code
       eval(`this._evaled=${code}`)
@@ -28,6 +31,7 @@ class MetaNodeShell {
   }
   toJSON() {
     return {
+      ...this.options,
       _raw: this._raw,
       id: this.id,
       config: {
@@ -39,8 +43,8 @@ class MetaNodeShell {
   }
 }
 
-function generateMetaNode(codeStr: string, id?: string) {
-  return new MetaNodeShell(codeStr, id).toJSON()
+function generateMetaNode(codeStr: string, options?: Partial<MetaNode>) {
+  return new MetaNodeShell(codeStr, options).toJSON()
 }
 
 function runMetaNode(_metaNode: MetaNode, input: any, options: any = {}, context: RunningContext) {
@@ -68,7 +72,10 @@ window.addEventListener("message", async function (event) {
     return
   }
   if (event.data.type === MESSAGE_TYPE.Meta) {
-    const { run, ...metaNode } = generateMetaNode(event.data.payload.codeStr, event.data.payload.id)
+    const { run, ...metaNode } = generateMetaNode(
+      event.data.payload.codeStr,
+      event.data.payload.options
+    )
     const result: StatusMessage = {
       ok: true,
       data: metaNode,

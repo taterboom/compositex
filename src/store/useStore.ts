@@ -27,7 +27,7 @@ export type State = {
   pipelines: Pipeline[]
   pins: string[]
   currentInspectObject: CompositeXObject | null
-  addMetaNode(metaNodeStr: string): Promise<void>
+  addMetaNode(metaNodeStr: string, options?: Partial<MetaNode>): Promise<MetaNode>
   installMetaNode(metaNode: MetaNode): void
   removeMetaNode(id: string, related?: boolean): void
   updateMetaNode(id: string, metaNodeStr: string): Promise<void>
@@ -41,6 +41,7 @@ export type State = {
   export(): void
   togglePin(id: string): void
   updateCurrentInspectObject(object: CompositeXObject | null): void
+  clearUnusedDisposableMetaNodes(): void
 }
 
 const useStore = create<State>()(
@@ -50,13 +51,14 @@ const useStore = create<State>()(
         metaNodes: [] as MetaNode[],
         pipelines: [] as Pipeline[],
         pins: [] as string[],
-        currentInspectObject: null,
+        currentInspectObject: null as any,
 
-        async addMetaNode(metaNodeStr) {
-          const metaNode = await generateMetaNode(metaNodeStr)
+        async addMetaNode(metaNodeStr, options) {
+          const metaNode = await generateMetaNode(metaNodeStr, options)
           set((state) => {
             state.metaNodes.push(metaNode)
           })
+          return metaNode
         },
         installMetaNode(metaNode) {
           const localMetaNode = selectMetaNode(metaNode.id)(get())
@@ -82,7 +84,9 @@ const useStore = create<State>()(
           })
         },
         async updateMetaNode(id, metaNodeStr) {
-          const metaNode = await generateMetaNode(metaNodeStr, id)
+          const localMetaNode = selectMetaNode(id)(get())
+          if (!localMetaNode) return
+          const metaNode = await generateMetaNode(metaNodeStr, localMetaNode)
           set((state) => {
             const toBeUpdatedIndex = state.metaNodes.findIndex((item) => item.id === id)
             if (toBeUpdatedIndex === -1) return
@@ -162,6 +166,19 @@ const useStore = create<State>()(
         updateCurrentInspectObject(object) {
           set({
             currentInspectObject: object,
+          })
+        },
+        clearUnusedDisposableMetaNodes() {
+          console.log("clearUnusedDisposableMetaNodes start")
+          const { pipelines, metaNodes } = get()
+          const disposableMetaNodes = metaNodes.filter((item) => item.disposable)
+          const unusedDisposableMetaNodes = disposableMetaNodes.filter(
+            (item) => !pipelines.some((p) => p.nodes.some((n) => n.metaId === item.id))
+          )
+          set((state) => {
+            state.metaNodes = state.metaNodes.filter(
+              (item) => !unusedDisposableMetaNodes.some((n) => n.id === item.id)
+            )
           })
         },
       })),

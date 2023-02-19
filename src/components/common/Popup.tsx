@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { PropsWithChildren } from "react"
 import { Portal } from "./Portal"
 
-export function Dialog(props: PropsWithChildren<{ open: boolean }>) {
+export function Popup(props: PropsWithChildren<{ open: boolean }>) {
   return (
     <AnimatePresence>
       {props.open && (
@@ -23,7 +23,7 @@ export function Dialog(props: PropsWithChildren<{ open: boolean }>) {
             transition={{
               duration: 0.1,
             }}
-            className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-base-100 shadow-lg p-4 rounded"
+            className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-base-100 shadow-lg p-4 rounded max-w-4xl"
           >
             {props.children}
           </motion.div>

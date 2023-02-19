@@ -4,11 +4,18 @@ import { BundledPipeline, IdentityNode, MetaNode, Node, Pipeline } from "@/store
 import useStore from "@/store/useStore"
 import { generateIdentityNode, generateIdentityNodeFromNode } from "@/utils/helper"
 import produce from "immer"
-import { useCallback, useRef, useState } from "react"
+import { PropsWithChildren, useCallback, useMemo, useRef, useState } from "react"
 import { DndProvider, useDrag, useDrop } from "react-dnd"
 import { HTML5Backend } from "react-dnd-html5-backend"
-import { MaterialSymbolsDragIndicator, MaterialSymbolsRemoveRounded } from "./common/icons"
+import { Popup } from "./common/Popup"
+import {
+  MaterialSymbolsDragIndicator,
+  MaterialSymbolsMoreHoriz,
+  MaterialSymbolsRemoveRounded,
+} from "./common/icons"
+import { MetaNodeEditor } from "./MetaNodeEditor"
 import { TypeDefinitionView } from "./TypeDefinitionView"
+import clsx from "classnames"
 
 function DraggableMetaNode(props: { value: MetaNode; onAdd?: (index?: number) => void }) {
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -30,10 +37,13 @@ function DraggableMetaNode(props: { value: MetaNode; onAdd?: (index?: number) =>
   return (
     <div
       ref={drag}
-      className="group relative bg-base-100 rounded py-1 px-2 cursor-grab"
+      className="group relative bg-base-100 rounded py-2 px-3 cursor-grab border border-base-content/10"
       style={{ opacity }}
     >
-      <div>{props.value.config.name}</div>
+      <div className="text-semibold">{props.value.config.name}</div>
+      <div className="text-sm opacity-60 truncate" title={props.value.config.desc}>
+        {props.value.config.desc}
+      </div>
       <button
         className="btn btn-circle btn-xs btn-ghost absolute top-1 right-1 hidden group-hover:block"
         onClick={() => props.onAdd?.()}
@@ -44,20 +54,42 @@ function DraggableMetaNode(props: { value: MetaNode; onAdd?: (index?: number) =>
   )
 }
 
-function MetaNodes(props: { onAdd: (metaNode: MetaNode, index?: number) => void }) {
+function MetaNodesLayer(props: { onAdd: (metaNode: MetaNode, index?: number) => void }) {
+  const [searchString, setSearchString] = useState("")
   const metaNodes = useStore(selectOrderedMetaNodes)
+  const reusableMetaNodes = useMemo(() => metaNodes.filter((item) => !item.disposable), [metaNodes])
+  const searchedMetaNodes = useMemo(() => {
+    const search = searchString.trim().toLowerCase()
+    if (!search) return reusableMetaNodes
+    return reusableMetaNodes.filter(
+      (item) =>
+        item.config.name.toLowerCase().includes(search) ||
+        item.config.desc?.toLowerCase().includes(search)
+    )
+  }, [reusableMetaNodes, searchString])
 
   return (
-    <div className="rounded-lg bg-base-300 w-48 p-2 space-y-2 h-fit">
-      {metaNodes.map((item) => (
-        <DraggableMetaNode
-          key={item.id}
-          value={item}
-          onAdd={(i) => {
-            props.onAdd?.(item, i)
-          }}
-        ></DraggableMetaNode>
-      ))}
+    <div className="bg-base-200/70 w-56 p-4 space-y-4 sticky top-0 left-0 z-10 h-full border-l border-base-content/10">
+      <div>
+        <input
+          type="text"
+          placeholder="Search"
+          className="input input-bordered input-sm w-full max-w-sm "
+          value={searchString}
+          onChange={(e) => setSearchString(e.target.value)}
+        />
+      </div>
+      <div className="space-y-2">
+        {searchedMetaNodes.map((item) => (
+          <DraggableMetaNode
+            key={item.id}
+            value={item}
+            onAdd={(i) => {
+              props.onAdd?.(item, i)
+            }}
+          ></DraggableMetaNode>
+        ))}
+      </div>
     </div>
   )
 }
@@ -150,7 +182,7 @@ function NodeEditor(props: {
       <div ref={ref} className="cursor-grab flex items-center px-1">
         <MaterialSymbolsDragIndicator />
       </div>
-      <div className="flex-1 py-2 pr-2 space-y-1">
+      <div className="flex-1 py-4 pr-4 space-y-1">
         {/* <div>{props.value.name}</div> */}
         <div className="font-semibold">{metaNode?.config.name}</div>
         <div>
@@ -170,11 +202,33 @@ function NodeEditor(props: {
   )
 }
 
+function NodeLayout(
+  props: PropsWithChildren<{ className?: string; bordered?: boolean; topLine?: boolean }>
+) {
+  return (
+    <div className={props.className}>
+      {props.topLine && <div className="w-px h-8 mx-auto bg-primary"></div>}
+      <div
+        className={clsx(
+          "relative w-full min-h-32 bg-base-100 rounded",
+          "before:absolute before:z-10 before:left-1/2 before:top-0 before:-translate-x-1/2 before:-translate-y-1/2 before:w-2 before:h-2 before:rounded-full before:bg-primary",
+          "after:absolute after:z-10 after:left-1/2 after:top-full after:-translate-x-1/2 after:-translate-y-1/2 after:w-2 after:h-2 after:rounded-full after:bg-primary",
+          props.bordered && "border-dashed border-primary/70 border"
+        )}
+      >
+        {props.children}
+      </div>
+      <div className="w-px h-8 mx-auto bg-primary"></div>
+    </div>
+  )
+}
+
 function Nodes({
   nodes,
   onUpdateNode,
   onMoveNode,
   onRemoveNode,
+  onAddDisposableNode,
 }: {
   nodes: IdentityNode[]
   onUpdateNode?: (id: string, value: Pick<Node, "options" | "name">) => void
@@ -184,6 +238,7 @@ function Nodes({
     draggedItem: MetaNode | IdentityNode
   ) => void
   onRemoveNode?: (index: number) => void
+  onAddDisposableNode?: (node: MetaNode) => void
 }) {
   const [{ canDrop, isOver }, drop] = useDrop(() => ({
     accept: ItemType.META,
@@ -199,31 +254,107 @@ function Nodes({
     }),
   }))
   const isActive = canDrop && isOver
-  let backgroundClass = "bg-base-300"
-  if (isActive) {
-    backgroundClass = "bg-accent/70"
-  } else if (canDrop) {
-    backgroundClass = "bg-accent-focus/70"
-  }
+
   return (
-    <div ref={drop} className={"rounded-lg p-4 w-[450px] space-y-2 bg-base-300 " + backgroundClass}>
-      {nodes.length === 0 && (
-        <div className="text-center text-accent-content text-lg">
-          Drag and Drop or click + to add nodes from left
-        </div>
-      )}
+    <div ref={drop} className={"rounded-lg p-4 w-[520px]"}>
       {nodes.map((item, index) => (
-        <NodeEditor
-          key={item.id}
-          index={index}
-          value={item}
-          onChange={(options) => {
-            onUpdateNode?.(item.id, options)
-          }}
-          onMoveNode={onMoveNode}
-          onRemove={() => onRemoveNode?.(index)}
-        />
+        <NodeLayout key={item.id} topLine={index === 0}>
+          <NodeEditor
+            key={item.id}
+            index={index}
+            value={item}
+            onChange={(options) => {
+              onUpdateNode?.(item.id, options)
+            }}
+            onMoveNode={onMoveNode}
+            onRemove={() => onRemoveNode?.(index)}
+          />
+        </NodeLayout>
       ))}
+      <NodeLayout
+        className={clsx(isActive ? "opacity-100" : canDrop ? "opacity-80" : "opacity-60")}
+        topLine={nodes.length === 0}
+        bordered
+      >
+        <div className="h-32 flex flex-col justify-center px-16">
+          <p>Drag and Drop or click + to add nodes from left.</p>
+          <p>
+            You can also
+            <CreateDisposableNode onCreate={onAddDisposableNode} />
+          </p>
+        </div>
+      </NodeLayout>
+    </div>
+  )
+}
+
+function CreateDisposableNode(props: { onCreate?: (metaNode: MetaNode) => void }) {
+  const [open, setOpen] = useState(false)
+  const addMetaNode = useStore((state) => state.addMetaNode)
+  return (
+    <>
+      <button
+        className="btn px-1 py-1 h-fit min-h-min btn-link text-info"
+        onClick={() => {
+          setOpen(true)
+        }}
+      >
+        add a disposable node
+      </button>
+      <Popup open={open}>
+        <MetaNodeEditor
+          cancelable
+          onCancel={() => {
+            setOpen(false)
+          }}
+          onSubmit={(value) => {
+            setOpen(false)
+            addMetaNode(value, { disposable: true }).then((metaNode) => {
+              props.onCreate?.(metaNode)
+            })
+          }}
+        />
+      </Popup>
+    </>
+  )
+}
+
+function DescriptionEditor(props: {
+  defalutValue: string
+  onSubmit?: (value: string) => void
+  onCancel?: () => void
+}) {
+  const ref = useRef<HTMLTextAreaElement>(null)
+  return (
+    <div className="space-y-4 w-80">
+      <div>
+        <textarea
+          ref={ref}
+          className="textarea textarea-bordered w-full text-base"
+          placeholder="Type the pipeline description here"
+          defaultValue={props.defalutValue}
+          rows={3}
+        ></textarea>
+      </div>
+      <div className="space-x-4">
+        <button
+          className="btn"
+          onClick={() => {
+            props.onCancel?.()
+          }}
+        >
+          Cancel
+        </button>
+        <button
+          className="btn btn-primary"
+          onClick={() => {
+            if (!ref.current) return
+            props.onSubmit?.(ref.current.value)
+          }}
+        >
+          Save
+        </button>
+      </div>
     </div>
   )
 }
@@ -231,10 +362,11 @@ function Nodes({
 export function PipelineEditor(props: {
   value?: Pipeline
   onSubmit?: (pipeline: Omit<Pipeline, "id">) => void
-  displayOnly?: Boolean
+  displayOnly?: boolean
 }) {
   const [name, setName] = useState(props.value?.name || "")
   const [desc, setDesc] = useState(props.value?.desc || "")
+  const [descriptionEditorPopupVisible, setDescriptionEditorPopupVisible] = useState(false)
   const [nodes, _setNodes] = useState<IdentityNode[]>(
     () => props.value?.nodes.map(generateIdentityNodeFromNode) || []
   )
@@ -290,52 +422,68 @@ export function PipelineEditor(props: {
       })
     )
   return (
-    <div>
-      <DndProvider backend={HTML5Backend}>
-        <div className="space-y-4">
-          <div>
+    <DndProvider backend={HTML5Backend}>
+      <div className="flex gap-8 h-screen overflow-y-auto">
+        {!props.displayOnly && <MetaNodesLayer onAdd={addNode} />}
+        <div className="relative p-4 space-y-4">
+          <div className="flex items-center justify-center">
             <input
               disabled={!!props.displayOnly}
               type="text"
-              placeholder="Type Name"
-              className="input input-bordered w-full max-w-sm "
+              placeholder="Pipeline Name"
+              className="input input-ghost w-full max-w-sm text-center font-semibold text-lg"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
-          </div>
-          <div>
-            <input
-              disabled={!!props.displayOnly}
-              type="text"
-              placeholder="Type Desc"
-              className="input input-bordered w-full max-w-sm "
-              value={desc}
-              onChange={(e) => setDesc(e.target.value)}
-            />
+            {!props.displayOnly && (
+              <div className="absolute -right-12 flex items-center gap-2">
+                <div className="dropdown">
+                  <button tabIndex={0} className="btn">
+                    <MaterialSymbolsMoreHoriz />
+                  </button>
+                  <ul
+                    tabIndex={0}
+                    className="dropdown-content border border-base-content/10 menu p-2 shadow bg-base-300 rounded-box w-48"
+                  >
+                    <li onClick={() => setDescriptionEditorPopupVisible(true)}>
+                      <a className="py-1 px-2">Edit Description</a>
+                    </li>
+                  </ul>
+                </div>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => {
+                    props.onSubmit?.({ nodes, name, desc })
+                  }}
+                >
+                  Save
+                </button>
+                <Popup open={descriptionEditorPopupVisible}>
+                  <DescriptionEditor
+                    defalutValue={desc}
+                    onSubmit={(value) => {
+                      setDesc(value)
+                      setDescriptionEditorPopupVisible(false)
+                    }}
+                    onCancel={() => {
+                      setDescriptionEditorPopupVisible(false)
+                    }}
+                  ></DescriptionEditor>
+                </Popup>
+              </div>
+            )}
           </div>
           <div className="flex space-x-4">
-            {!props.displayOnly && <MetaNodes onAdd={addNode} />}
             <Nodes
               nodes={nodes}
               onUpdateNode={updateNode}
               onMoveNode={moveNode}
               onRemoveNode={removeNode}
+              onAddDisposableNode={addNode}
             />
           </div>
-          {!props.displayOnly && (
-            <div>
-              <button
-                className="btn btn-wide btn-primary"
-                onClick={() => {
-                  props.onSubmit?.({ nodes, name, desc })
-                }}
-              >
-                Save
-              </button>
-            </div>
-          )}
         </div>
-      </DndProvider>
-    </div>
+      </div>
+    </DndProvider>
   )
 }
