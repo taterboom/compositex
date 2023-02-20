@@ -17,13 +17,19 @@ function TinyMetaNode(props: { value: MetaNode }) {
   )
 }
 
-export function PipelineItem(props: { value: BundledPipeline }) {
+export function PipelineItem(props: { value: BundledPipeline; className?: string }) {
   const pipeline = props.value
   const localPipeline = useStore(selectPipeline(props.value.id))
   const installPipeline = useStore((state) => state.installPipeline)
   const relatedMetaNodes = useMemo(() => getRelatedMetaNodes(pipeline), [pipeline])
   return (
-    <div key={pipeline.id} className="card max-w-[480px] p-4 mt-4 bg-base-300 shadow-xl space-y-2">
+    <div
+      key={pipeline.id}
+      className={clsx(
+        "card max-w-[480px] p-4 mt-4 bg-base-300 shadow-xl space-y-2",
+        props.className
+      )}
+    >
       <InspectLink className="text-lg font-semibold" value={pipeline}>
         {pipeline.name}
       </InspectLink>

@@ -10,6 +10,7 @@ import {
   MaterialSymbolsUploadRounded,
 } from "./common/icons"
 import { Panel } from "./common/Panel"
+import { ObjectImportButton } from "./ObjectImport"
 import { PipelineEditor } from "./PipelineEditor"
 import { Pipelines } from "./Pipelines"
 
@@ -23,11 +24,12 @@ function PipelinePage() {
             <MaterialSymbolsAdd /> Create
           </button>
         </Link>
-        <Link to={`/${PANEL.IMPORT}`}>
+        {/* <Link to={`/${PANEL.IMPORT}`}>
           <button className="btn btn-sm btn-primary gap-2">
             <IconParkOutlineInstall /> Import
           </button>
-        </Link>
+        </Link> */}
+        <ObjectImportButton />
       </div>
       <Pipelines navigate={navigate} />
     </div>
