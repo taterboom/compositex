@@ -82,7 +82,7 @@ export function Progress(props: { value: ProgressItem[]; pipeline: Pipeline }) {
               key={index}
               data-index={index}
               className={clsx(
-                "step !min-w-[5rem] break-all",
+                "step !min-w-[5rem]",
                 props.value[index]
                   ? !props.value[index].ok
                     ? "step-error"
@@ -127,7 +127,7 @@ export function PipelineItem(props: { value: Pipeline }) {
   const inputRef = useRef()
   const inputDefinition = firstMetaNode?.config.input
   return (
-    <div className="card max-w-[480px] p-4 mt-4 bg-base-300 shadow-xl space-y-2">
+    <div className="card max-w-[480px] p-4 mt-4 bg-base-100 shadow-xl space-y-2">
       <div className="flex items-center">
         <div className="flex-1 text-lg font-semibold">{props.value.name}</div>
         <div className="flex">
@@ -156,7 +156,7 @@ export function PipelineItem(props: { value: Pipeline }) {
             </label>
             <ul
               tabIndex={0}
-              className="dropdown-content menu p-2 shadow bg-base-300 rounded-box w-32"
+              className="dropdown-content menu p-2 shadow bg-base-200 rounded-box w-32"
             >
               <li>
                 <a
@@ -208,7 +208,11 @@ export function PipelineItem(props: { value: Pipeline }) {
           </div>
         </div>
       </div>
-      {props.value.desc && <div className="flex-1 opacity-70">{props.value.desc}</div>}
+      {props.value.desc && (
+        <div className="tooltip" data-tip={props.value.desc}>
+          <div className="flex-1 opacity-70 line-clamp-2 text-left">{props.value.desc}</div>
+        </div>
+      )}
 
       <div className="flex">
         {inputDefinition ? (
@@ -297,7 +301,7 @@ export function Pipelines({ navigate }: { navigate: (...args: any[]) => void }) 
 
   return (
     <NavigateContext.Provider value={{ navigate }}>
-      <div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
         {pipelines.map((item) => (
           <PipelineItem key={item.id} value={item} />
         ))}

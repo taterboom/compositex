@@ -127,7 +127,10 @@ export function ObjectImportButton() {
   const [popupVisible, setPopupVisible] = useState(false)
   return (
     <>
-      <button className="btn btn-sm btn-primary gap-2" onClick={() => setPopupVisible(true)}>
+      <button
+        className="btn btn-sm btn-primary btn-outline gap-2"
+        onClick={() => setPopupVisible(true)}
+      >
         <IconParkOutlineInstall /> Import
       </button>
       <Popup open={popupVisible}>
