@@ -5,7 +5,6 @@ import { Routes, Route, useNavigate, useLocation, Navigate } from "react-router-
 import { Logo, MENU } from "./common/icons"
 import { ExplorePannel } from "./ExplorePannel"
 import ExternalInstallPanel from "./ExternalInstallPanel"
-import { ImportPanel } from "./ImportPanel"
 import InspectPanel from "./InspectPanel"
 import { MetaNodePanel } from "./MetaNodePanel"
 import { PipelinePanel } from "./PipelinePanel"
@@ -55,14 +54,6 @@ export function App() {
           </li>
           <li>
             <a
-              className={clsx(checkPanelActive(PANEL.IMPORT) && "active")}
-              onClick={() => navigate(generatePanelLink(PANEL.IMPORT))}
-            >
-              <span>Import 待移除</span>
-            </a>
-          </li>
-          <li>
-            <a
               className={clsx(checkPanelActive(PANEL.SETTINGS) && "active")}
               onClick={() => navigate(generatePanelLink(PANEL.SETTINGS))}
             >
@@ -77,7 +68,6 @@ export function App() {
           <Route path={`${PANEL.PIPELINE}/*`} element={<PipelinePanel />}></Route>
           <Route path={`${PANEL.NODE}/*`} element={<MetaNodePanel />}></Route>
           <Route path={`${PANEL.EXPLORE}/*`} element={<ExplorePannel />}></Route>
-          <Route path={`${PANEL.IMPORT}/*`} element={<ImportPanel />}></Route>
           <Route path={`${PANEL.SETTINGS}/*`} element={<SettingsPanel />}></Route>
           <Route path={`${PANEL.INSPECT}/*`} element={<InspectPanel />}></Route>
           <Route path={`${PANEL.EXTERNAL_INSTALL}/*`} element={<ExternalInstallPanel />}></Route>

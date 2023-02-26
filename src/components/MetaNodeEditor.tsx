@@ -1,6 +1,7 @@
 import { DEMO } from "@/constants/codeEditor"
 import { useRef } from "react"
 import Editor from "./common/CodeEditor"
+import clsx from "classnames"
 
 type MetaNodeEditorProps = {
   value?: string
@@ -8,25 +9,13 @@ type MetaNodeEditorProps = {
   onCancel?: (value: string) => void
   displayOnly?: boolean
   cancelable?: boolean
+  handlerClassName?: string
 }
 export function MetaNodeEditor(props: MetaNodeEditorProps) {
   const ref = useRef<string>(props.value ?? DEMO)
 
   return (
     <div className="space-y-4">
-      {!props.displayOnly && (
-        <div className="space-x-4">
-          <button className="btn btn-wide" onClick={() => props.onCancel?.(ref.current)}>
-            Cancel
-          </button>
-          <button
-            className="btn btn-wide btn-primary"
-            onClick={() => props.onSubmit?.(ref.current)}
-          >
-            Save
-          </button>
-        </div>
-      )}
       <div className="">
         <Editor
           value={props.value}
@@ -36,6 +25,16 @@ export function MetaNodeEditor(props: MetaNodeEditorProps) {
           }}
         />
       </div>
+      {!props.displayOnly && (
+        <div className={clsx("flex justify-end space-x-4", props.handlerClassName)}>
+          <button className="btn btn-sm" onClick={() => props.onCancel?.(ref.current)}>
+            Cancel
+          </button>
+          <button className="btn btn-sm btn-primary" onClick={() => props.onSubmit?.(ref.current)}>
+            Save
+          </button>
+        </div>
+      )}
     </div>
   )
 }

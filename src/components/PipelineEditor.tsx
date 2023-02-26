@@ -301,7 +301,7 @@ function CreateDisposableNode(props: { onCreate?: (metaNode: MetaNode) => void }
       >
         add a disposable node
       </button>
-      <Popup open={open}>
+      <Popup open={open} className="w-2/3">
         <MetaNodeEditor
           cancelable
           onCancel={() => {
@@ -336,9 +336,9 @@ function DescriptionEditor(props: {
           rows={3}
         ></textarea>
       </div>
-      <div className="space-x-4">
+      <div className="flex justify-end space-x-4">
         <button
-          className="btn"
+          className="btn btn-sm"
           onClick={() => {
             props.onCancel?.()
           }}
@@ -346,7 +346,7 @@ function DescriptionEditor(props: {
           Cancel
         </button>
         <button
-          className="btn btn-primary"
+          className="btn btn-sm btn-primary"
           onClick={() => {
             if (!ref.current) return
             props.onSubmit?.(ref.current.value)
@@ -438,12 +438,12 @@ export function PipelineEditor(props: {
             {!props.displayOnly && (
               <div className="absolute -right-12 flex items-center gap-2">
                 <div className="dropdown">
-                  <button tabIndex={0} className="btn">
+                  <button tabIndex={0} className="btn btn-sm btn-primary btn-outline">
                     <MaterialSymbolsMoreHoriz />
                   </button>
                   <ul
                     tabIndex={0}
-                    className="dropdown-content border border-base-content/10 menu p-2 shadow bg-base-300 rounded-box w-48"
+                    className="dropdown-content border-edge  menu p-2 shadow bg-base-300 rounded-box w-48"
                   >
                     <li onClick={() => setDescriptionEditorPopupVisible(true)}>
                       <a className="py-1 px-2">Edit Description</a>
@@ -451,7 +451,7 @@ export function PipelineEditor(props: {
                   </ul>
                 </div>
                 <button
-                  className="btn btn-primary"
+                  className="btn btn-sm btn-primary"
                   onClick={() => {
                     props.onSubmit?.({ nodes, name, desc })
                   }}

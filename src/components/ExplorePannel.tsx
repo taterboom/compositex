@@ -1,60 +1,63 @@
 import { BundledPipeline, MetaNode, Pipeline } from "@/store/type"
 import { generateMetaNode, generatePipeline, isMetaNode } from "@/utils/helper"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Panel } from "./common/Panel"
 import { MetaNodeItem } from "./common/MetaNodeItem"
 import { PipelineItem } from "./common/PipelineItem"
 
+// TODO change
+const ENDPOINT = "https://compositex-website.vercel.app"
+
+let cache: any
+
 export function ExplorePannel() {
+  const [searchString, setSearchString] = useState("")
   const [objects, setObjects] = useState<Array<MetaNode | BundledPipeline>>([])
 
   useEffect(() => {
     const init = async () => {
-      const demoMetaNode = await generateMetaNode(
-        `(function () {
-          /** @type {CompositeX.MetaNodeConfig} */
-          const nodeConfig = {
-            config: {
-              name: "DefaultValue",
-              input: { type: "number" },
-              output: { type: "number" },
-              options: [{ name: "value", type: "any", default: 1 }],
-            },
-            run(input, options) {
-              return input ?? options.value
-            },
-          }
-          return nodeConfig
-        })()`,
-        { id: "from-explore-0" }
-      )
-      const demoPipeline = generatePipeline({
-        id: "from-explore-1",
-        name: "Test DefaultValue",
-        nodes: [{ metaId: "from-explore-0", options: { value: 2 } }],
-      })
-      const demoBundledPipeline = {
-        ...demoPipeline,
-        nodes: [
-          {
-            ...demoPipeline.nodes[0],
-            metaNode: demoMetaNode,
-          },
-        ],
+      let data = cache
+      if (!data) {
+        data = await fetch(`${ENDPOINT}/api/explore/objects`).then((res) => res.json())
+        cache = data
       }
-      return [demoMetaNode, demoBundledPipeline]
+      setObjects(data)
     }
-    init().then(setObjects)
+    init()
   }, [])
 
+  const searchedObjects = useMemo(() => {
+    if (!searchString) return objects
+    const search = searchString.trim().toLowerCase()
+    return objects.filter((item) =>
+      isMetaNode(item)
+        ? item.config?.name?.toLowerCase().includes(search) ||
+          item.config?.desc?.toLowerCase().includes(search)
+        : item.name?.toLowerCase().includes(search) || item.desc?.toLowerCase().includes(search)
+    )
+  }, [objects, searchString])
+
+  const loading = objects?.length === 0
+
+  if (loading) return <div className="btn loading bg-transparent"></div>
+
   return (
-    <Panel>
+    <Panel className="space-y-4">
       <div>
-        {objects.map((item) =>
+        <input
+          type="text"
+          placeholder="Search"
+          className="input input-bordered input-sm w-full max-w-sm "
+          value={searchString}
+          onChange={(e) => setSearchString(e.target.value)}
+        />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
+        {searchedObjects.map((item) =>
           isMetaNode(item) ? (
-            <MetaNodeItem key={item.id} value={item} />
+            <MetaNodeItem key={item.id} value={item} className="!bg-base-100" />
           ) : (
-            <PipelineItem key={item.id} value={item} />
+            <PipelineItem key={item.id} value={item} className="!bg-base-100" />
           )
         )}
       </div>

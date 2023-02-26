@@ -1,5 +1,5 @@
 import { isMetaNode } from "@/utils/helper"
-import React, { useMemo, useState } from "react"
+import React, { PropsWithChildren, PropsWithoutRef, useMemo, useState } from "react"
 import { PipelineItem } from "./common/PipelineItem"
 import { MetaNodeItem } from "./common/MetaNodeItem"
 import clsx from "classnames"
@@ -86,7 +86,7 @@ export function ObjectImport(props: { onClose?: () => void }) {
       {objects.length > 0 && (
         <div
           className={clsx([
-            "flex-1 overflow-y-auto relative first:mt-0",
+            "flex-1 overflow-y-auto relative space-y-4",
             objects.length > 1 &&
               "before:sticky before:block before:top-0 before:left-0 before:w-full before:h-4 before:bg-gradient-to-b from-base-100/100 to-base-100/0 before:z-10",
             objects.length > 1 &&
@@ -103,12 +103,12 @@ export function ObjectImport(props: { onClose?: () => void }) {
         </div>
       )}
       <div className="flex justify-end space-x-4">
-        <button className="btn" onClick={props.onClose}>
+        <button className="btn btn-sm" onClick={props.onClose}>
           Close
         </button>
         {objects.length > 1 && (
           <button
-            className={clsx("btn btn-primary")}
+            className={clsx("btn btn-sm btn-primary")}
             onClick={() => {
               installAll()
               toast({ message: "Success", type: "success" })
@@ -123,7 +123,7 @@ export function ObjectImport(props: { onClose?: () => void }) {
   )
 }
 
-export function ObjectImportButton() {
+export function ObjectImportButton(props: PropsWithChildren) {
   const [popupVisible, setPopupVisible] = useState(false)
   return (
     <>
@@ -131,7 +131,11 @@ export function ObjectImportButton() {
         className="btn btn-sm btn-primary btn-outline gap-2"
         onClick={() => setPopupVisible(true)}
       >
-        <IconParkOutlineInstall /> Import
+        {props.children ?? (
+          <>
+            <IconParkOutlineInstall /> Import
+          </>
+        )}
       </button>
       <Popup open={popupVisible}>
         <ObjectImport

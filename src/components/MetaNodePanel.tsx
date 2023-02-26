@@ -18,8 +18,10 @@ import {
 } from "./common/icons"
 import { Panel } from "./common/Panel"
 import { MetaNodeEditor } from "./MetaNodeEditor"
+import { ObjectImportButton } from "./ObjectImport"
 
 function MetaNodeItem(props: { value: MetaNode }) {
+  const navigate = useNavigate()
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const isPinned = useStore(selectIsPinned(props.value.id))
   const removeMetaNode = useStore((state) => state.removeMetaNode)
@@ -27,7 +29,7 @@ function MetaNodeItem(props: { value: MetaNode }) {
   const relatedPipelines = useStore(selectPipelinesWithMetaNodeIds([props.value.id]))
   const togglePin = useStore((state) => state.togglePin)
   return (
-    <div className="card max-w-[480px] p-4 mt-4 bg-base-300 shadow-xl space-y-2">
+    <div className="card max-w-[480px] p-4 bg-base-100 shadow-xl space-y-2">
       <div className="flex items-center">
         <div className="flex-1 text-lg font-semibold">{props.value.config.name}</div>
         <div className="flex">
@@ -37,7 +39,7 @@ function MetaNodeItem(props: { value: MetaNode }) {
             </label>
             <ul
               tabIndex={0}
-              className="dropdown-content menu p-2 shadow bg-base-300 rounded-box w-32"
+              className="dropdown-content menu p-2 shadow bg-base-200 rounded-box w-32 border-edge"
             >
               <li>
                 <a
@@ -80,11 +82,35 @@ function MetaNodeItem(props: { value: MetaNode }) {
           </div>
         </div>
       </div>
+      {props.value.config.desc && (
+        <div>
+          <div className="tooltip" data-tip={props.value.config.desc}>
+            <div className="flex-1 opacity-70 line-clamp-2 text-left">
+              {props.value.config.desc}
+            </div>
+          </div>
+        </div>
+      )}
       {relatedPipelines?.length > 0 && (
         <div className="space-y-2">
-          <div className="">
-            Used by these Pipelines:
-            <span className="opacity-70"> {relatedPipelines.map((item) => item.name).join()}</span>
+          <div className="text-xs opacity-30 truncate">
+            Used in &nbsp;
+            <span className="">
+              {relatedPipelines.map((item, index, arr) => (
+                <>
+                  <button
+                    key={item.id}
+                    className="btn px-0 py-0 h-fit min-h-min btn-link text-base-content font-normal"
+                    onClick={() => {
+                      navigate(`/${PANEL.PIPELINE}/editor/${item.id}`)
+                    }}
+                  >
+                    {item.name}
+                  </button>
+                  {index < arr.length - 1 ? "," : ""}&nbsp;
+                </>
+              ))}
+            </span>
           </div>
         </div>
       )}
@@ -150,11 +176,20 @@ function MetaNodeItem(props: { value: MetaNode }) {
   )
 }
 
-function MetaNodes() {
+function MetaNodes({ search }: { search: string }) {
   const metaNodes = useStore(selectOrderedMetaNodes)
+  const searchedMetaNodes = useMemo(() => {
+    if (!search) return metaNodes
+    const searchString = search.trim().toLowerCase()
+    return metaNodes.filter(
+      (item) =>
+        item.config.name?.toLowerCase().includes(searchString) ||
+        item.config.desc?.toLowerCase().includes(searchString)
+    )
+  }, [metaNodes, search])
   return (
-    <div>
-      {metaNodes.map((metaNode, index) => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
+      {searchedMetaNodes.map((metaNode, index) => (
         <MetaNodeItem key={metaNode.id} value={metaNode}></MetaNodeItem>
       ))}
     </div>
@@ -162,21 +197,34 @@ function MetaNodes() {
 }
 
 function MetaNodesPage() {
+  const [searchString, setSearchString] = useState("")
   return (
     <div className="space-y-4">
-      <div className="space-x-2">
-        <Link to="editor">
-          <button className="btn btn-sm btn-primary">
-            <MaterialSymbolsAdd />
-          </button>
-        </Link>
-        <Link to={`/${PANEL.IMPORT}`}>
+      <div className="flex justify-between">
+        <div className="space-x-2">
+          <Link to="editor">
+            <button className="btn btn-sm btn-primary gap-2">
+              <MaterialSymbolsAdd /> Create
+            </button>
+          </Link>
+          {/* <Link to={`/${PANEL.IMPORT}`}>
           <button className="btn btn-sm btn-primary btn-disabled">
             <MaterialSymbolsUploadRounded />
           </button>
-        </Link>
+        </Link> */}
+          <ObjectImportButton />
+        </div>
+        <div>
+          <input
+            type="text"
+            placeholder="Search"
+            className="input input-bordered input-sm w-full max-w-sm "
+            value={searchString}
+            onChange={(e) => setSearchString(e.target.value)}
+          />
+        </div>
       </div>
-      <MetaNodes />
+      <MetaNodes search={searchString} />
     </div>
   )
 }
@@ -187,6 +235,10 @@ function MetaNodeCreate() {
   return (
     <div>
       <MetaNodeEditor
+        handlerClassName="!justify-start"
+        onCancel={() => {
+          navigate(-1)
+        }}
         onSubmit={(value) => {
           addMetaNode(value)
           navigate(`/${PANEL.NODE}`)
@@ -209,6 +261,10 @@ function MetaNodeUpdate() {
           onSubmit={(value) => {
             updateMetaNode(edittingMetaNode.id, value)
             navigate(`/${PANEL.NODE}`)
+          }}
+          handlerClassName="!justify-start"
+          onCancel={() => {
+            navigate(-1)
           }}
         />
       ) : null}
@@ -233,6 +289,10 @@ function MetaNodeFolk() {
     <div>
       {folkedMetaNode ? (
         <MetaNodeEditor
+          handlerClassName="!justify-start"
+          onCancel={() => {
+            navigate(-1)
+          }}
           value={folkedMetaNode._raw}
           onSubmit={(value) => {
             addMetaNode(value)

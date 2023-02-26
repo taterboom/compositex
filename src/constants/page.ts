@@ -2,7 +2,6 @@ export const PANEL = {
   PIPELINE: "pipeline",
   NODE: "node",
   EXPLORE: "explore",
-  IMPORT: "import",
   SETTINGS: "settings",
   INSPECT: "inspect",
   EXTERNAL_INSTALL: "external-install",

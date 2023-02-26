@@ -16,20 +16,14 @@ setupTerminal(plugins)
 
 function App() {
   return (
-    <div className="p-4">
-      <div className="flex">
+    <div className="py-2 px-4">
+      <div className="flex mb-2">
         <div className="flex-1">
           <button
             className="btn btn-sm btn-ghost"
             onClick={() => chrome.tabs.create({ url: `options.html#/${PANEL.PIPELINE}/editor` })}
           >
             <MaterialSymbolsAdd />
-          </button>
-          <button
-            className="btn btn-sm btn-ghost"
-            onClick={() => chrome.tabs.create({ url: `options.html#/${PANEL.IMPORT}` })}
-          >
-            <MaterialSymbolsUploadRounded />
           </button>
         </div>
         <div className="flex">

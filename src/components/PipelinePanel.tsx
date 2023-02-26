@@ -2,7 +2,7 @@ import { PANEL } from "@/constants/page"
 import { selectPipeline } from "@/store/selectors"
 import useStore from "@/store/useStore"
 import produce from "immer"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { Link, Route, Routes, useNavigate, useParams } from "react-router-dom"
 import {
   IconParkOutlineInstall,
@@ -15,23 +15,35 @@ import { PipelineEditor } from "./PipelineEditor"
 import { Pipelines } from "./Pipelines"
 
 function PipelinePage() {
+  const [searchString, setSearchString] = useState("")
   const navigate = useNavigate()
   return (
     <div className="space-y-4">
-      <div className="space-x-2">
-        <Link to="editor">
-          <button className="btn btn-sm btn-primary gap-2">
-            <MaterialSymbolsAdd /> Create
-          </button>
-        </Link>
-        {/* <Link to={`/${PANEL.IMPORT}`}>
+      <div className="flex justify-between">
+        <div className="space-x-2">
+          <Link to="editor">
+            <button className="btn btn-sm btn-primary gap-2">
+              <MaterialSymbolsAdd /> Create
+            </button>
+          </Link>
+          {/* <Link to={`/${PANEL.IMPORT}`}>
           <button className="btn btn-sm btn-primary gap-2">
             <IconParkOutlineInstall /> Import
           </button>
         </Link> */}
-        <ObjectImportButton />
+          <ObjectImportButton />
+        </div>
+        <div>
+          <input
+            type="text"
+            placeholder="Search"
+            className="input input-bordered input-sm w-full max-w-sm "
+            value={searchString}
+            onChange={(e) => setSearchString(e.target.value)}
+          />
+        </div>
       </div>
-      <Pipelines navigate={navigate} />
+      <Pipelines navigate={navigate} search={searchString} />
     </div>
   )
 }

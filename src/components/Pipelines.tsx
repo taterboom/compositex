@@ -127,7 +127,7 @@ export function PipelineItem(props: { value: Pipeline }) {
   const inputRef = useRef()
   const inputDefinition = firstMetaNode?.config.input
   return (
-    <div className="card max-w-[480px] p-4 mt-4 bg-base-100 shadow-xl space-y-2">
+    <div className="card max-w-[480px] p-4 bg-base-100 shadow-xl space-y-2">
       <div className="flex items-center">
         <div className="flex-1 text-lg font-semibold">{props.value.name}</div>
         <div className="flex">
@@ -156,7 +156,7 @@ export function PipelineItem(props: { value: Pipeline }) {
             </label>
             <ul
               tabIndex={0}
-              className="dropdown-content menu p-2 shadow bg-base-200 rounded-box w-32"
+              className="dropdown-content menu p-2 shadow bg-base-200 rounded-box w-32 border-edge "
             >
               <li>
                 <a
@@ -209,8 +209,10 @@ export function PipelineItem(props: { value: Pipeline }) {
         </div>
       </div>
       {props.value.desc && (
-        <div className="tooltip" data-tip={props.value.desc}>
-          <div className="flex-1 opacity-70 line-clamp-2 text-left">{props.value.desc}</div>
+        <div>
+          <div className="tooltip" data-tip={props.value.desc}>
+            <div className="flex-1 opacity-70 line-clamp-2 text-left">{props.value.desc}</div>
+          </div>
         </div>
       )}
 
@@ -296,13 +298,28 @@ export const NavigateContext = createContext<{ navigate: (...args: any[]) => voi
   navigate: () => {},
 })
 
-export function Pipelines({ navigate }: { navigate: (...args: any[]) => void }) {
+export function Pipelines({
+  navigate,
+  search,
+}: {
+  navigate: (...args: any[]) => void
+  search?: string
+}) {
   const pipelines = useStore(selectOrderedPipelines)
+  const searchedPipelines = useMemo(() => {
+    if (!search) return pipelines
+    const searchString = search.trim().toLowerCase()
+    return pipelines.filter(
+      (item) =>
+        item.name?.toLowerCase().includes(searchString) ||
+        item.desc?.toLowerCase().includes(searchString)
+    )
+  }, [pipelines, search])
 
   return (
     <NavigateContext.Provider value={{ navigate }}>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
-        {pipelines.map((item) => (
+        {searchedPipelines.map((item) => (
           <PipelineItem key={item.id} value={item} />
         ))}
       </div>

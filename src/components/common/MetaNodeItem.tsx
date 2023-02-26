@@ -10,30 +10,34 @@ export function MetaNodeItem(props: { value: MetaNode; className?: string }) {
   const localMetaNode = useStore(selectMetaNode(props.value.id))
   const installMetaNode = useStore((state) => state.installMetaNode)
   return (
-    <div
-      className={clsx(
-        "card max-w-[480px] p-4 mt-4 bg-base-300 shadow-xl space-y-2",
-        props.className
-      )}
-    >
+    <div className={clsx("card max-w-[480px] p-4 bg-base-300 shadow-xl gap-2", props.className)}>
       <InspectLink className="text-lg font-semibold" value={metaNode}>
         {metaNode.config.name}
       </InspectLink>
-      <div>{metaNode.config.desc}</div>
-      <div>Installed? {localMetaNode ? "YES" : "NO"}</div>
+      <div className="text-base-content/70">{metaNode.config.desc}</div>
       <button
-        className={clsx("btn", localMetaNode ? "btn-disabled" : "")}
+        className={clsx(
+          "btn btn-sm btn-primary gap-2 !mt-auto",
+          localMetaNode ? "btn-disabled" : ""
+        )}
         onClick={() => {
           if (localMetaNode) {
             alert("Already Installed!")
+            return
           }
           installMetaNode(props.value)
         }}
       >
         {localMetaNode ? (
-          <MaterialSymbolsDownloadDoneRounded />
+          <>
+            <MaterialSymbolsDownloadDoneRounded />
+            Installed
+          </>
         ) : (
-          <MaterialSymbolsDownloadRounded />
+          <>
+            <MaterialSymbolsDownloadRounded />
+            Install
+          </>
         )}
       </button>
     </div>
