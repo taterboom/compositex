@@ -3,12 +3,8 @@ import { selectPipeline } from "@/store/selectors"
 import useStore from "@/store/useStore"
 import produce from "immer"
 import { useMemo, useState } from "react"
-import { Link, Route, Routes, useNavigate, useParams } from "react-router-dom"
-import {
-  IconParkOutlineInstall,
-  MaterialSymbolsAdd,
-  MaterialSymbolsUploadRounded,
-} from "./common/icons"
+import { Link, Route, useNavigate, useParams } from "react-router-dom"
+import { MaterialSymbolsAdd } from "./common/icons"
 import { Panel } from "./common/Panel"
 import { ObjectImportButton } from "./ObjectImport"
 import { PipelineEditor } from "./PipelineEditor"
@@ -112,20 +108,18 @@ function PipelineFolk() {
   )
 }
 
-export function PipelinePanel() {
-  return (
-    <Routes>
-      <Route path={"editor/folk/:id"} element={<PipelineFolk />} />
-      <Route path={"editor/:id"} element={<PipelineUpdate />} />
-      <Route path={"editor"} element={<PipelineCreate />} />
-      <Route
-        path="/"
-        element={
-          <Panel>
-            <PipelinePage />
-          </Panel>
-        }
-      />
-    </Routes>
-  )
-}
+export const router = (
+  <Route path={PANEL.PIPELINE}>
+    <Route path={"editor/folk/:id"} element={<PipelineFolk />} />
+    <Route path={"editor/:id"} element={<PipelineUpdate />} />
+    <Route path={"editor"} element={<PipelineCreate />} />
+    <Route
+      index
+      element={
+        <Panel>
+          <PipelinePage />
+        </Panel>
+      }
+    />
+  </Route>
+)

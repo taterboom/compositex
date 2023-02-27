@@ -9,7 +9,7 @@ import { MetaNode } from "@/store/type"
 import useStore from "@/store/useStore"
 import produce from "immer"
 import { useMemo, useState } from "react"
-import { Link, Route, Routes, useNavigate, useParams } from "react-router-dom"
+import { Link, Outlet, Route, Routes, useNavigate, useParams } from "react-router-dom"
 import { Popup } from "./common/Popup"
 import {
   MaterialSymbolsAdd,
@@ -303,15 +303,19 @@ function MetaNodeFolk() {
     </div>
   )
 }
-export function MetaNodePanel() {
-  return (
-    <Panel>
-      <Routes>
-        <Route path={"editor/folk/:id"} element={<MetaNodeFolk />} />
-        <Route path={"editor/:id"} element={<MetaNodeUpdate />} />
-        <Route path={"editor"} element={<MetaNodeCreate />} />
-        <Route path="" element={<MetaNodesPage />} />
-      </Routes>
-    </Panel>
-  )
-}
+
+export const router = (
+  <Route
+    path={PANEL.NODE}
+    element={
+      <Panel>
+        <Outlet />
+      </Panel>
+    }
+  >
+    <Route path={"editor/folk/:id"} element={<MetaNodeFolk />} />
+    <Route path={"editor/:id"} element={<MetaNodeUpdate />} />
+    <Route path={"editor"} element={<MetaNodeCreate />} />
+    <Route index element={<MetaNodesPage />} />
+  </Route>
+)

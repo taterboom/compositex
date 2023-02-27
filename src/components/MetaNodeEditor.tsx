@@ -1,7 +1,8 @@
 import { DEMO } from "@/constants/codeEditor"
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import Editor from "./common/CodeEditor"
 import clsx from "classnames"
+import { BlockNavigationConfirm } from "./common/BlockNavigationConfirm"
 
 type MetaNodeEditorProps = {
   value?: string
@@ -12,7 +13,13 @@ type MetaNodeEditorProps = {
   handlerClassName?: string
 }
 export function MetaNodeEditor(props: MetaNodeEditorProps) {
-  const ref = useRef<string>(props.value ?? DEMO)
+  const initialValue = props.value ?? DEMO
+  const ref = useRef<string>(initialValue)
+
+  const [blocked, setBlocked] = useState(false)
+
+  const savedRef = useRef(false)
+  const isBlocked = !savedRef.current && blocked
 
   return (
     <div className="space-y-4">
@@ -22,6 +29,7 @@ export function MetaNodeEditor(props: MetaNodeEditorProps) {
           defaultValue={ref.current}
           onChange={(v) => {
             ref.current = v || ""
+            setBlocked(ref.current !== initialValue)
           }}
         />
       </div>
@@ -30,11 +38,18 @@ export function MetaNodeEditor(props: MetaNodeEditorProps) {
           <button className="btn btn-sm" onClick={() => props.onCancel?.(ref.current)}>
             Cancel
           </button>
-          <button className="btn btn-sm btn-primary" onClick={() => props.onSubmit?.(ref.current)}>
+          <button
+            className="btn btn-sm btn-primary"
+            onClick={() => {
+              savedRef.current = true
+              props.onSubmit?.(ref.current)
+            }}
+          >
             Save
           </button>
         </div>
       )}
+      <BlockNavigationConfirm isBlocked={isBlocked} />
     </div>
   )
 }

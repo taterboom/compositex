@@ -1,16 +1,45 @@
 import { generatePanelLink, PANEL } from "@/constants/page"
 import { plugins, setupTerminal } from "@/plugins"
 import clsx from "classnames"
-import { Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom"
+import { PropsWithChildren } from "react"
+import {
+  Routes,
+  Route,
+  useNavigate,
+  useLocation,
+  Navigate,
+  createHashRouter,
+  createRoutesFromElements,
+  RouterProvider,
+  Outlet,
+} from "react-router-dom"
 import { Logo, MENU } from "./common/icons"
 import { ExplorePannel } from "./ExplorePannel"
 import ExternalInstallPanel from "./ExternalInstallPanel"
 import InspectPanel from "./InspectPanel"
-import { MetaNodePanel } from "./MetaNodePanel"
-import { PipelinePanel } from "./PipelinePanel"
+import { router as MetaNodeRouter } from "./MetaNodePanel"
+import { router as pipelineRouter } from "./PipelinePanel"
 import { SettingsPanel } from "./SettingsPanel"
 
 setupTerminal(plugins)
+
+const router = createHashRouter(
+  createRoutesFromElements(
+    <Route path="/" element={<App />}>
+      {pipelineRouter}
+      {MetaNodeRouter}
+      <Route path={`${PANEL.EXPLORE}/*`} element={<ExplorePannel />}></Route>
+      <Route path={`${PANEL.SETTINGS}/*`} element={<SettingsPanel />}></Route>
+      <Route path={`${PANEL.INSPECT}/*`} element={<InspectPanel />}></Route>
+      <Route path={`${PANEL.EXTERNAL_INSTALL}/*`} element={<ExternalInstallPanel />}></Route>
+      <Route index element={<Navigate to={`${PANEL.PIPELINE}`} replace />}></Route>
+    </Route>
+  )
+)
+
+export const Root = () => {
+  return <RouterProvider router={router}></RouterProvider>
+}
 
 export function App() {
   const navigate = useNavigate()
@@ -64,15 +93,7 @@ export function App() {
         </ul>
       </div>
       <div className="flex-1 overflow-y-auto">
-        <Routes>
-          <Route path={`${PANEL.PIPELINE}/*`} element={<PipelinePanel />}></Route>
-          <Route path={`${PANEL.NODE}/*`} element={<MetaNodePanel />}></Route>
-          <Route path={`${PANEL.EXPLORE}/*`} element={<ExplorePannel />}></Route>
-          <Route path={`${PANEL.SETTINGS}/*`} element={<SettingsPanel />}></Route>
-          <Route path={`${PANEL.INSPECT}/*`} element={<InspectPanel />}></Route>
-          <Route path={`${PANEL.EXTERNAL_INSTALL}/*`} element={<ExternalInstallPanel />}></Route>
-          <Route path="*" element={<Navigate to={`${PANEL.PIPELINE}`} replace />}></Route>
-        </Routes>
+        <Outlet />
       </div>
     </div>
   )

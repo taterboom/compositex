@@ -16,6 +16,7 @@ import {
 import { MetaNodeEditor } from "./MetaNodeEditor"
 import { TypeDefinitionView } from "./TypeDefinitionView"
 import clsx from "classnames"
+import { BlockNavigationConfirm } from "./common/BlockNavigationConfirm"
 
 function DraggableMetaNode(props: { value: MetaNode; onAdd?: (index?: number) => void }) {
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -421,6 +422,10 @@ export function PipelineEditor(props: {
         draft.splice(index, 1)
       })
     )
+
+  const savedRef = useRef(false)
+  const isBlocked = !savedRef.current && (nodes.length > 0 || !!name || !!desc)
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="flex gap-8 h-screen overflow-y-auto">
@@ -453,6 +458,7 @@ export function PipelineEditor(props: {
                 <button
                   className="btn btn-sm btn-primary"
                   onClick={() => {
+                    savedRef.current = true
                     props.onSubmit?.({ nodes, name, desc })
                   }}
                 >
@@ -484,6 +490,7 @@ export function PipelineEditor(props: {
           </div>
         </div>
       </div>
+      <BlockNavigationConfirm isBlocked={isBlocked} />
     </DndProvider>
   )
 }
