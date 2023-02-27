@@ -365,7 +365,7 @@ export function PipelineEditor(props: {
   onSubmit?: (pipeline: Omit<Pipeline, "id">) => void
   displayOnly?: boolean
 }) {
-  const [name, setName] = useState(props.value?.name || "")
+  const [name, setName] = useState(props.value?.name || "Untitled Pipeline")
   const [desc, setDesc] = useState(props.value?.desc || "")
   const [descriptionEditorPopupVisible, setDescriptionEditorPopupVisible] = useState(false)
   const [nodes, _setNodes] = useState<IdentityNode[]>(
