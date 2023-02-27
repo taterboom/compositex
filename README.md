@@ -488,3 +488,337 @@ document.querySelector(".assetPreview img").src
   return nodeConfig
 })()
 ```
+
+```javascript
+// folked color-string (https://github.com/Qix-/color-string)
+;(function () {
+  const colorNames = {
+    aliceblue: [240, 248, 255],
+    antiquewhite: [250, 235, 215],
+    aqua: [0, 255, 255],
+    aquamarine: [127, 255, 212],
+    azure: [240, 255, 255],
+    beige: [245, 245, 220],
+    bisque: [255, 228, 196],
+    black: [0, 0, 0],
+    blanchedalmond: [255, 235, 205],
+    blue: [0, 0, 255],
+    blueviolet: [138, 43, 226],
+    brown: [165, 42, 42],
+    burlywood: [222, 184, 135],
+    cadetblue: [95, 158, 160],
+    chartreuse: [127, 255, 0],
+    chocolate: [210, 105, 30],
+    coral: [255, 127, 80],
+    cornflowerblue: [100, 149, 237],
+    cornsilk: [255, 248, 220],
+    crimson: [220, 20, 60],
+    cyan: [0, 255, 255],
+    darkblue: [0, 0, 139],
+    darkcyan: [0, 139, 139],
+    darkgoldenrod: [184, 134, 11],
+    darkgray: [169, 169, 169],
+    darkgreen: [0, 100, 0],
+    darkgrey: [169, 169, 169],
+    darkkhaki: [189, 183, 107],
+    darkmagenta: [139, 0, 139],
+    darkolivegreen: [85, 107, 47],
+    darkorange: [255, 140, 0],
+    darkorchid: [153, 50, 204],
+    darkred: [139, 0, 0],
+    darksalmon: [233, 150, 122],
+    darkseagreen: [143, 188, 143],
+    darkslateblue: [72, 61, 139],
+    darkslategray: [47, 79, 79],
+    darkslategrey: [47, 79, 79],
+    darkturquoise: [0, 206, 209],
+    darkviolet: [148, 0, 211],
+    deeppink: [255, 20, 147],
+    deepskyblue: [0, 191, 255],
+    dimgray: [105, 105, 105],
+    dimgrey: [105, 105, 105],
+    dodgerblue: [30, 144, 255],
+    firebrick: [178, 34, 34],
+    floralwhite: [255, 250, 240],
+    forestgreen: [34, 139, 34],
+    fuchsia: [255, 0, 255],
+    gainsboro: [220, 220, 220],
+    ghostwhite: [248, 248, 255],
+    gold: [255, 215, 0],
+    goldenrod: [218, 165, 32],
+    gray: [128, 128, 128],
+    green: [0, 128, 0],
+    greenyellow: [173, 255, 47],
+    grey: [128, 128, 128],
+    honeydew: [240, 255, 240],
+    hotpink: [255, 105, 180],
+    indianred: [205, 92, 92],
+    indigo: [75, 0, 130],
+    ivory: [255, 255, 240],
+    khaki: [240, 230, 140],
+    lavender: [230, 230, 250],
+    lavenderblush: [255, 240, 245],
+    lawngreen: [124, 252, 0],
+    lemonchiffon: [255, 250, 205],
+    lightblue: [173, 216, 230],
+    lightcoral: [240, 128, 128],
+    lightcyan: [224, 255, 255],
+    lightgoldenrodyellow: [250, 250, 210],
+    lightgray: [211, 211, 211],
+    lightgreen: [144, 238, 144],
+    lightgrey: [211, 211, 211],
+    lightpink: [255, 182, 193],
+    lightsalmon: [255, 160, 122],
+    lightseagreen: [32, 178, 170],
+    lightskyblue: [135, 206, 250],
+    lightslategray: [119, 136, 153],
+    lightslategrey: [119, 136, 153],
+    lightsteelblue: [176, 196, 222],
+    lightyellow: [255, 255, 224],
+    lime: [0, 255, 0],
+    limegreen: [50, 205, 50],
+    linen: [250, 240, 230],
+    magenta: [255, 0, 255],
+    maroon: [128, 0, 0],
+    mediumaquamarine: [102, 205, 170],
+    mediumblue: [0, 0, 205],
+    mediumorchid: [186, 85, 211],
+    mediumpurple: [147, 112, 219],
+    mediumseagreen: [60, 179, 113],
+    mediumslateblue: [123, 104, 238],
+    mediumspringgreen: [0, 250, 154],
+    mediumturquoise: [72, 209, 204],
+    mediumvioletred: [199, 21, 133],
+    midnightblue: [25, 25, 112],
+    mintcream: [245, 255, 250],
+    mistyrose: [255, 228, 225],
+    moccasin: [255, 228, 181],
+    navajowhite: [255, 222, 173],
+    navy: [0, 0, 128],
+    oldlace: [253, 245, 230],
+    olive: [128, 128, 0],
+    olivedrab: [107, 142, 35],
+    orange: [255, 165, 0],
+    orangered: [255, 69, 0],
+    orchid: [218, 112, 214],
+    palegoldenrod: [238, 232, 170],
+    palegreen: [152, 251, 152],
+    paleturquoise: [175, 238, 238],
+    palevioletred: [219, 112, 147],
+    papayawhip: [255, 239, 213],
+    peachpuff: [255, 218, 185],
+    peru: [205, 133, 63],
+    pink: [255, 192, 203],
+    plum: [221, 160, 221],
+    powderblue: [176, 224, 230],
+    purple: [128, 0, 128],
+    rebeccapurple: [102, 51, 153],
+    red: [255, 0, 0],
+    rosybrown: [188, 143, 143],
+    royalblue: [65, 105, 225],
+    saddlebrown: [139, 69, 19],
+    salmon: [250, 128, 114],
+    sandybrown: [244, 164, 96],
+    seagreen: [46, 139, 87],
+    seashell: [255, 245, 238],
+    sienna: [160, 82, 45],
+    silver: [192, 192, 192],
+    skyblue: [135, 206, 235],
+    slateblue: [106, 90, 205],
+    slategray: [112, 128, 144],
+    slategrey: [112, 128, 144],
+    snow: [255, 250, 250],
+    springgreen: [0, 255, 127],
+    steelblue: [70, 130, 180],
+    tan: [210, 180, 140],
+    teal: [0, 128, 128],
+    thistle: [216, 191, 216],
+    tomato: [255, 99, 71],
+    turquoise: [64, 224, 208],
+    violet: [238, 130, 238],
+    wheat: [245, 222, 179],
+    white: [255, 255, 255],
+    whitesmoke: [245, 245, 245],
+    yellow: [255, 255, 0],
+    yellowgreen: [154, 205, 50],
+  }
+  var concat = Array.prototype.concat
+  var slice = Array.prototype.slice
+  function swizzle(args) {
+    var results = []
+    for (var i = 0, len = args.length; i < len; i++) {
+      var arg = args[i]
+      if (Array.isArray(arg)) {
+        results = concat.call(results, slice.call(arg))
+      } else {
+        results.push(arg)
+      }
+    }
+    return results
+  }
+  var hasOwnProperty = Object.hasOwnProperty,
+    reverseNames = Object.create(null)
+  for (var name in colorNames)
+    hasOwnProperty.call(colorNames, name) && (reverseNames[colorNames[name]] = name)
+  var cs = { to: {}, get: {} }
+  function clamp(r, e, a) {
+    return Math.min(Math.max(e, r), a)
+  }
+  function hexDouble(r) {
+    var e = Math.round(r).toString(16).toUpperCase()
+    return e.length < 2 ? "0" + e : e
+  }
+  ;(cs.get = function (r) {
+    var e, a
+    switch (r.substring(0, 3).toLowerCase()) {
+      case "hsl":
+        ;(e = cs.get.hsl(r)), (a = "hsl")
+        break
+      case "hwb":
+        ;(e = cs.get.hwb(r)), (a = "hwb")
+        break
+      default:
+        ;(e = cs.get.rgb(r)), (a = "rgb")
+    }
+    return e ? { model: a, value: e } : null
+  }),
+    (cs.get.rgb = function (r) {
+      if (!r) return null
+      var e,
+        a,
+        s,
+        t = [0, 0, 0, 1]
+      if ((e = r.match(/^#([a-f0-9]{6})([a-f0-9]{2})?$/i))) {
+        for (s = e[2], e = e[1], a = 0; a < 3; a++) {
+          var n = 2 * a
+          t[a] = parseInt(e.slice(n, n + 2), 16)
+        }
+        s && (t[3] = parseInt(s, 16) / 255)
+      } else if ((e = r.match(/^#([a-f0-9]{3,4})$/i))) {
+        for (s = (e = e[1])[3], a = 0; a < 3; a++) t[a] = parseInt(e[a] + e[a], 16)
+        s && (t[3] = parseInt(s + s, 16) / 255)
+      } else if (
+        (e = r.match(
+          /^rgba?\(\s*([+-]?\d+)(?=[\s,])\s*(?:,\s*)?([+-]?\d+)(?=[\s,])\s*(?:,\s*)?([+-]?\d+)\s*(?:[,|\/]\s*([+-]?[\d\.]+)(%?)\s*)?\)$/
+        ))
+      ) {
+        for (a = 0; a < 3; a++) t[a] = parseInt(e[a + 1], 0)
+        e[4] && (e[5] ? (t[3] = 0.01 * parseFloat(e[4])) : (t[3] = parseFloat(e[4])))
+      } else {
+        if (
+          !(e = r.match(
+            /^rgba?\(\s*([+-]?[\d\.]+)\%\s*,?\s*([+-]?[\d\.]+)\%\s*,?\s*([+-]?[\d\.]+)\%\s*(?:[,|\/]\s*([+-]?[\d\.]+)(%?)\s*)?\)$/
+          ))
+        )
+          return (e = r.match(/^(\w+)$/))
+            ? "transparent" === e[1]
+              ? [0, 0, 0, 0]
+              : hasOwnProperty.call(colorNames, e[1])
+              ? (((t = colorNames[e[1]])[3] = 1), t)
+              : null
+            : null
+        for (a = 0; a < 3; a++) t[a] = Math.round(2.55 * parseFloat(e[a + 1]))
+        e[4] && (e[5] ? (t[3] = 0.01 * parseFloat(e[4])) : (t[3] = parseFloat(e[4])))
+      }
+      for (a = 0; a < 3; a++) t[a] = clamp(t[a], 0, 255)
+      return (t[3] = clamp(t[3], 0, 1)), t
+    }),
+    (cs.get.hsl = function (r) {
+      if (!r) return null
+      var e = r.match(
+        /^hsla?\(\s*([+-]?(?:\d{0,3}\.)?\d+)(?:deg)?\s*,?\s*([+-]?[\d\.]+)%\s*,?\s*([+-]?[\d\.]+)%\s*(?:[,|\/]\s*([+-]?(?=\.\d|\d)(?:0|[1-9]\d*)?(?:\.\d*)?(?:[eE][+-]?\d+)?)\s*)?\)$/
+      )
+      if (e) {
+        var a = parseFloat(e[4])
+        return [
+          ((parseFloat(e[1]) % 360) + 360) % 360,
+          clamp(parseFloat(e[2]), 0, 100),
+          clamp(parseFloat(e[3]), 0, 100),
+          clamp(isNaN(a) ? 1 : a, 0, 1),
+        ]
+      }
+      return null
+    }),
+    (cs.get.hwb = function (r) {
+      if (!r) return null
+      var e = r.match(
+        /^hwb\(\s*([+-]?\d{0,3}(?:\.\d+)?)(?:deg)?\s*,\s*([+-]?[\d\.]+)%\s*,\s*([+-]?[\d\.]+)%\s*(?:,\s*([+-]?(?=\.\d|\d)(?:0|[1-9]\d*)?(?:\.\d*)?(?:[eE][+-]?\d+)?)\s*)?\)$/
+      )
+      if (e) {
+        var a = parseFloat(e[4])
+        return [
+          ((parseFloat(e[1]) % 360) + 360) % 360,
+          clamp(parseFloat(e[2]), 0, 100),
+          clamp(parseFloat(e[3]), 0, 100),
+          clamp(isNaN(a) ? 1 : a, 0, 1),
+        ]
+      }
+      return null
+    }),
+    (cs.to.hex = function () {
+      var r = swizzle(arguments)
+      return (
+        "#" +
+        hexDouble(r[0]) +
+        hexDouble(r[1]) +
+        hexDouble(r[2]) +
+        (r[3] < 1 ? hexDouble(Math.round(255 * r[3])) : "")
+      )
+    }),
+    (cs.to.rgb = function () {
+      var r = swizzle(arguments)
+      return r.length < 4 || 1 === r[3]
+        ? "rgb(" + Math.round(r[0]) + ", " + Math.round(r[1]) + ", " + Math.round(r[2]) + ")"
+        : "rgba(" +
+            Math.round(r[0]) +
+            ", " +
+            Math.round(r[1]) +
+            ", " +
+            Math.round(r[2]) +
+            ", " +
+            r[3] +
+            ")"
+    }),
+    (cs.to.rgb.percent = function () {
+      var r = swizzle(arguments),
+        e = Math.round((r[0] / 255) * 100),
+        a = Math.round((r[1] / 255) * 100),
+        s = Math.round((r[2] / 255) * 100)
+      return r.length < 4 || 1 === r[3]
+        ? "rgb(" + e + "%, " + a + "%, " + s + "%)"
+        : "rgba(" + e + "%, " + a + "%, " + s + "%, " + r[3] + ")"
+    }),
+    (cs.to.hsl = function () {
+      var r = swizzle(arguments)
+      return r.length < 4 || 1 === r[3]
+        ? "hsl(" + r[0] + ", " + r[1] + "%, " + r[2] + "%)"
+        : "hsla(" + r[0] + ", " + r[1] + "%, " + r[2] + "%, " + r[3] + ")"
+    }),
+    (cs.to.hwb = function () {
+      var r = swizzle(arguments),
+        e = ""
+      return (
+        r.length >= 4 && 1 !== r[3] && (e = ", " + r[3]),
+        "hwb(" + r[0] + ", " + r[1] + "%, " + r[2] + "%" + e + ")"
+      )
+    }),
+    (cs.to.keyword = function (r) {
+      return reverseNames[r.slice(0, 3)]
+    })
+  /** @type {CompositeX.MetaNodeConfig} */
+  const nodeConfig = {
+    config: {
+      name: "Color",
+      desc: "Color convert",
+      input: { type: "string" },
+      output: { type: "string" },
+      options: [{ name: "format", type: "string", default: "hex" }],
+    },
+    run(input, options, context) {
+      console.log(cs.to.hex([1, 2, 3, 1]))
+      return cs.to[options.format](cs.get(input).value)
+    },
+  }
+  return nodeConfig
+})()
+```

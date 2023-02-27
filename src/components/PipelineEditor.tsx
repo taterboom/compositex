@@ -4,7 +4,7 @@ import { BundledPipeline, IdentityNode, MetaNode, Node, Pipeline } from "@/store
 import useStore from "@/store/useStore"
 import { generateIdentityNode, generateIdentityNodeFromNode } from "@/utils/helper"
 import produce from "immer"
-import { PropsWithChildren, useCallback, useMemo, useRef, useState } from "react"
+import { PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { DndProvider, useDrag, useDrop } from "react-dnd"
 import { HTML5Backend } from "react-dnd-html5-backend"
 import { Popup } from "./common/Popup"
@@ -70,7 +70,7 @@ function MetaNodesLayer(props: { onAdd: (metaNode: MetaNode, index?: number) => 
   }, [reusableMetaNodes, searchString])
 
   return (
-    <div className="bg-base-200/70 w-56 p-4 space-y-4 sticky top-0 left-0 z-10 h-full border-l border-base-content/10">
+    <div className="bg-base-200/70 w-56 p-4 space-y-4 sticky top-0 left-0 z-10 h-full border-l border-base-content/10 overflow-y-auto">
       <div>
         <input
           type="text"
@@ -423,8 +423,14 @@ export function PipelineEditor(props: {
       })
     )
 
-  const savedRef = useRef(false)
-  const isBlocked = !savedRef.current && (nodes.length > 0 || !!name || !!desc)
+  const [candidateData, setCandidateData] = useState<null | Omit<Pipeline, "id">>(null)
+  const isBlocked = !candidateData && (nodes.length > 0 || !!name || !!desc)
+
+  useEffect(() => {
+    if (candidateData) {
+      props.onSubmit?.(candidateData)
+    }
+  }, [candidateData])
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -458,8 +464,7 @@ export function PipelineEditor(props: {
                 <button
                   className="btn btn-sm btn-primary"
                   onClick={() => {
-                    savedRef.current = true
-                    props.onSubmit?.({ nodes, name, desc })
+                    setCandidateData({ nodes, name, desc })
                   }}
                 >
                   Save

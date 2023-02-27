@@ -1,5 +1,5 @@
 import { DEMO } from "@/constants/codeEditor"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Editor from "./common/CodeEditor"
 import clsx from "classnames"
 import { BlockNavigationConfirm } from "./common/BlockNavigationConfirm"
@@ -18,8 +18,14 @@ export function MetaNodeEditor(props: MetaNodeEditorProps) {
 
   const [blocked, setBlocked] = useState(false)
 
-  const savedRef = useRef(false)
-  const isBlocked = !savedRef.current && blocked
+  const [candidateData, setCandidateData] = useState<null | string>(null)
+  const isBlocked = !candidateData && blocked
+
+  useEffect(() => {
+    if (candidateData) {
+      props.onSubmit?.(candidateData)
+    }
+  }, [candidateData])
 
   return (
     <div className="space-y-4">
@@ -41,8 +47,7 @@ export function MetaNodeEditor(props: MetaNodeEditorProps) {
           <button
             className="btn btn-sm btn-primary"
             onClick={() => {
-              savedRef.current = true
-              props.onSubmit?.(ref.current)
+              setCandidateData(ref.current)
             }}
           >
             Save
