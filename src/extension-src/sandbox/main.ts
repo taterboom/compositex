@@ -12,6 +12,14 @@ function generateContext() {
 
 const sendMessage = generateMessageSender(window.parent)
 
+function formatCodeStr(codeStr: string) {
+  let result = codeStr.trim()
+  if (result.startsWith(";")) {
+    result = result.slice(1)
+  }
+  return result
+}
+
 class MetaNodeShell {
   id: string
   _raw: string
@@ -21,7 +29,7 @@ class MetaNodeShell {
     const { id = uuidv4(), ...otherOptions } = options
     this.options = otherOptions
     try {
-      this._raw = code
+      this._raw = formatCodeStr(code)
       eval(`this._evaled=${code}`)
     } catch (err) {
       console.log(err)

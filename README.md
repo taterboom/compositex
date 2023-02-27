@@ -822,3 +822,76 @@ document.querySelector(".assetPreview img").src
   return nodeConfig
 })()
 ```
+
+```javascript
+;(function () {
+  /** @type {CompositeX.MetaNodeConfig} */
+  const nodeConfig = {
+    config: {
+      name: "Base64",
+      desc: "Base64",
+      input: { type: "string" },
+      output: { type: "string" },
+      options: [
+        {
+          name: "type",
+          type: "enum",
+          enumItems: [
+            { name: "decode", value: "decode" },
+            { name: "encode", value: "encode" },
+          ],
+          default: "decode",
+        },
+      ],
+    },
+    run(input, options, context) {
+      if (options.type === "decode") {
+        return window.atob(input)
+      } else {
+        return window.btoa(input)
+      }
+    },
+  }
+  return nodeConfig
+})()
+```
+
+```javascript
+;(function () {
+  /** @type {CompositeX.MetaNodeConfig} */
+  const nodeConfig = {
+    config: {
+      name: "Pinyin",
+      desc: "Pinyin convertion based pinyin-api.vercel.app",
+      input: { type: "string" },
+      output: { type: "any" },
+      options: [
+        { name: "apiOptions", type: "json" },
+        {
+          name: "outputType",
+          type: "enum",
+          default: "list",
+          enumItems: [
+            { name: "text", value: "text" },
+            { name: "list", value: "list" },
+          ],
+        },
+      ],
+    },
+    async run(input, options, context) {
+      const url = new URL("https://pinyin-api.vercel.app/api/generate")
+      url.searchParams.append("wd", input)
+      Object.entries(options.apiOptions || {}).forEach(([key, value]) => {
+        url.searchParams.append(key, value)
+      })
+      const result = await context.fetch(url.toString()).then((res) => res.data)
+      if (options.outputType === "text") {
+        return result.join(" ")
+      } else {
+        return result
+      }
+    },
+  }
+  return nodeConfig
+})()
+```
