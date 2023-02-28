@@ -33,6 +33,7 @@ export function MetaNodeEditor(props: MetaNodeEditorProps) {
         <Editor
           value={props.value}
           defaultValue={ref.current}
+          options={{ readOnly: props.displayOnly }}
           onChange={(v) => {
             ref.current = v || ""
             setBlocked(ref.current !== initialValue)

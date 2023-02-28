@@ -192,8 +192,9 @@ function NodeEditor(props: {
         </div>
       )}
       <div className={clsx("flex-1 py-4 pr-4 space-y-1", props.displayOnly && "px-4")}>
-        {/* <div>{props.value.name}</div> */}
-        <div className="font-semibold">{metaNode?.config.name}</div>
+        <InspectLink className="font-semibold" value={metaNode}>
+          {metaNode.config.name}
+        </InspectLink>
         <div>
           {metaNode?.config.options?.map?.((option, index) => (
             <div key={index} className="space-y-1">

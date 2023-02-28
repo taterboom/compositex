@@ -47,7 +47,7 @@ export function PipelineItem(props: { value: BundledPipeline; className?: string
         {pipeline.name}
       </InspectLink>
       <div className="text-base-content/70">{pipeline.desc}</div>
-      {relatedMetaNodes.length > 0 && (
+      {/* {relatedMetaNodes.length > 0 && (
         <div>
           <div className="dropdown">
             <label tabIndex={0} className="text-info/70 text-sm cursor-pointer">
@@ -75,7 +75,7 @@ export function PipelineItem(props: { value: BundledPipeline; className?: string
             </div>
           </div>
         </div>
-      )}
+      )} */}
       <button
         className={clsx(
           "btn btn-sm btn-primary gap-2 !mt-auto",
