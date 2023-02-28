@@ -192,9 +192,13 @@ function NodeEditor(props: {
         </div>
       )}
       <div className={clsx("flex-1 py-4 pr-4 space-y-1", props.displayOnly && "px-4")}>
-        <InspectLink className="font-semibold" value={metaNode}>
-          {metaNode.config.name}
-        </InspectLink>
+        {!props.displayOnly && metaNode.disposable ? (
+          <UpdateDisposableNode value={metaNode} />
+        ) : (
+          <InspectLink className="font-semibold" value={metaNode}>
+            {metaNode.config.name}
+          </InspectLink>
+        )}
         <div>
           {metaNode?.config.options?.map?.((option, index) => (
             <div key={index} className="space-y-1">
@@ -327,6 +331,36 @@ function CreateDisposableNode(props: { onCreate?: (metaNode: MetaNode) => void }
             addMetaNode(value, { disposable: true }).then((metaNode) => {
               props.onCreate?.(metaNode)
             })
+          }}
+        />
+      </Popup>
+    </>
+  )
+}
+
+function UpdateDisposableNode(props: { value: MetaNode }) {
+  const [open, setOpen] = useState(false)
+  const updateMetaNode = useStore((state) => state.updateMetaNode)
+  return (
+    <>
+      <a
+        className="link link-hover font-semibold"
+        onClick={() => {
+          setOpen(true)
+        }}
+      >
+        {props.value.config.name}
+      </a>
+      <Popup open={open} className="w-2/3">
+        <MetaNodeEditor
+          value={props.value._raw}
+          cancelable
+          onCancel={() => {
+            setOpen(false)
+          }}
+          onSubmit={(value) => {
+            setOpen(false)
+            updateMetaNode(props.value.id, value)
           }}
         />
       </Popup>
