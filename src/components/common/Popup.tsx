@@ -2,8 +2,16 @@ import { motion, AnimatePresence } from "framer-motion"
 import { PropsWithChildren } from "react"
 import { Portal } from "./Portal"
 import clsx from "classnames"
+import { MaterialSymbolsCloseRounded } from "./icons"
 
-export function Popup(props: PropsWithChildren<{ open: boolean; className?: string }>) {
+export function Popup(
+  props: PropsWithChildren<{
+    open: boolean
+    className?: string
+    closeable?: boolean
+    onClose?: () => void
+  }>
+) {
   return (
     <AnimatePresence>
       {props.open && (
@@ -29,6 +37,18 @@ export function Popup(props: PropsWithChildren<{ open: boolean; className?: stri
               props.className
             )}
           >
+            {props.closeable && (
+              <div className="absolute right-0 top-0 translate-x-1/2 -translate-y-1/2 ">
+                <button
+                  className="btn btn-circle text-xl bg-base-100"
+                  onClick={() => {
+                    props.onClose?.()
+                  }}
+                >
+                  <MaterialSymbolsCloseRounded />
+                </button>
+              </div>
+            )}
             {props.children}
           </motion.div>
         </Portal>

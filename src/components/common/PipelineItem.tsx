@@ -5,7 +5,7 @@ import { getRelatedMetaNodes } from "@/utils/helper"
 import { useMemo } from "react"
 import { MaterialSymbolsDownloadDoneRounded, MaterialSymbolsDownloadRounded } from "./icons"
 import clsx from "classnames"
-import { InspectLink } from "./InspectLink"
+import { InspectLink } from "./Inspect"
 
 function TinyMetaNode(props: { value: MetaNode; index: number }) {
   const localMetaNode = useStore(selectMetaNode(props.value.id))

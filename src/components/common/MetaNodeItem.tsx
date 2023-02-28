@@ -3,7 +3,7 @@ import { MetaNode } from "@/store/type"
 import useStore from "@/store/useStore"
 import { MaterialSymbolsDownloadDoneRounded, MaterialSymbolsDownloadRounded } from "./icons"
 import clsx from "classnames"
-import { InspectLink } from "./InspectLink"
+import { InspectLink } from "./Inspect"
 
 export function MetaNodeItem(props: { value: MetaNode; className?: string }) {
   const metaNode = props.value

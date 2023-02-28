@@ -17,6 +17,7 @@ import { MetaNodeEditor } from "./MetaNodeEditor"
 import { TypeDefinitionView } from "./TypeDefinitionView"
 import clsx from "classnames"
 import { BlockNavigationConfirm } from "./common/BlockNavigationConfirm"
+import { InspectLink } from "./common/Inspect"
 
 function DraggableMetaNode(props: { value: MetaNode; onAdd?: (index?: number) => void }) {
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -41,7 +42,9 @@ function DraggableMetaNode(props: { value: MetaNode; onAdd?: (index?: number) =>
       className="group relative bg-base-100 rounded py-2 px-3 cursor-grab border border-base-content/10"
       style={{ opacity }}
     >
-      <div className="text-semibold">{props.value.config.name}</div>
+      <InspectLink className="text-semibold" value={props.value}>
+        {props.value.config.name}
+      </InspectLink>
       <div className="text-sm opacity-60 truncate" title={props.value.config.desc}>
         {props.value.config.desc}
       </div>
@@ -98,6 +101,7 @@ function MetaNodesLayer(props: { onAdd: (metaNode: MetaNode, index?: number) => 
 function NodeEditor(props: {
   value: IdentityNode | BundledPipeline["nodes"][0]
   index: number
+  displayOnly?: boolean
   onChange?: (value: Pick<Node, "options" | "name">) => void
   onMoveNode?: (
     dargIndex: number | undefined,
@@ -169,21 +173,25 @@ function NodeEditor(props: {
   return (
     <div
       ref={previewRef}
-      className="relative flex bg-base-100 rounded"
+      className={clsx("relative flex rounded", props.displayOnly ? "bg-base-300" : "bg-base-100")}
       style={{
         opacity: isDragging ? 0.2 : 1,
       }}
     >
-      <button
-        className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-        onClick={() => props.onRemove?.()}
-      >
-        <MaterialSymbolsRemoveRounded />
-      </button>
-      <div ref={ref} className="cursor-grab flex items-center px-1">
-        <MaterialSymbolsDragIndicator />
-      </div>
-      <div className="flex-1 py-4 pr-4 space-y-1">
+      {!props.displayOnly && (
+        <button
+          className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+          onClick={() => props.onRemove?.()}
+        >
+          <MaterialSymbolsRemoveRounded />
+        </button>
+      )}
+      {!props.displayOnly && (
+        <div ref={ref} className="cursor-grab flex items-center px-1">
+          <MaterialSymbolsDragIndicator />
+        </div>
+      )}
+      <div className={clsx("flex-1 py-4 pr-4 space-y-1", props.displayOnly && "px-4")}>
         {/* <div>{props.value.name}</div> */}
         <div className="font-semibold">{metaNode?.config.name}</div>
         <div>
@@ -226,12 +234,14 @@ function NodeLayout(
 
 function Nodes({
   nodes,
+  displayOnly,
   onUpdateNode,
   onMoveNode,
   onRemoveNode,
   onAddDisposableNode,
 }: {
   nodes: IdentityNode[]
+  displayOnly?: boolean
   onUpdateNode?: (id: string, value: Pick<Node, "options" | "name">) => void
   onMoveNode?: (
     dargIndex: number | undefined,
@@ -262,6 +272,7 @@ function Nodes({
         <NodeLayout key={item.id} topLine={index === 0}>
           <NodeEditor
             key={item.id}
+            displayOnly={displayOnly}
             index={index}
             value={item}
             onChange={(options) => {
@@ -272,19 +283,21 @@ function Nodes({
           />
         </NodeLayout>
       ))}
-      <NodeLayout
-        className={clsx(isActive ? "opacity-100" : canDrop ? "opacity-80" : "opacity-60")}
-        topLine={nodes.length === 0}
-        bordered
-      >
-        <div className="h-32 flex flex-col justify-center px-16">
-          <p>Drag and Drop or click + to add nodes from left.</p>
-          <p>
-            You can also
-            <CreateDisposableNode onCreate={onAddDisposableNode} />
-          </p>
-        </div>
-      </NodeLayout>
+      {!displayOnly && (
+        <NodeLayout
+          className={clsx(isActive ? "opacity-100" : canDrop ? "opacity-80" : "opacity-60")}
+          topLine={nodes.length === 0}
+          bordered
+        >
+          <div className="h-32 flex flex-col justify-center px-16">
+            <p>Drag and Drop or click + to add nodes from left.</p>
+            <p>
+              You can also
+              <CreateDisposableNode onCreate={onAddDisposableNode} />
+            </p>
+          </div>
+        </NodeLayout>
+      )}
     </div>
   )
 }
@@ -364,8 +377,9 @@ export function PipelineEditor(props: {
   value?: Pipeline
   onSubmit?: (pipeline: Omit<Pipeline, "id">) => void
   displayOnly?: boolean
+  className?: string
 }) {
-  const [name, setName] = useState(props.value?.name || "Untitled Pipeline")
+  const [name, setName] = useState(props.value?.name || "")
   const [desc, setDesc] = useState(props.value?.desc || "")
   const [descriptionEditorPopupVisible, setDescriptionEditorPopupVisible] = useState(false)
   const [nodes, _setNodes] = useState<IdentityNode[]>(
@@ -434,14 +448,14 @@ export function PipelineEditor(props: {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="flex gap-8 h-screen overflow-y-auto">
+      <div className={clsx("flex gap-8 h-screen overflow-y-auto", props.className)}>
         {!props.displayOnly && <MetaNodesLayer onAdd={addNode} />}
         <div className="relative p-4 space-y-4">
           <div className="flex items-center justify-center">
             <input
               disabled={!!props.displayOnly}
               type="text"
-              placeholder="Pipeline Name"
+              placeholder="Untitled Pipeline"
               className="input input-ghost w-full max-w-sm text-center font-semibold text-lg"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -464,7 +478,7 @@ export function PipelineEditor(props: {
                 <button
                   className="btn btn-sm btn-primary"
                   onClick={() => {
-                    setCandidateData({ nodes, name, desc })
+                    setCandidateData({ nodes, name: name || "Untitled Pipeline", desc })
                   }}
                 >
                   Save
@@ -486,6 +500,7 @@ export function PipelineEditor(props: {
           </div>
           <div className="flex space-x-4">
             <Nodes
+              displayOnly={props.displayOnly}
               nodes={nodes}
               onUpdateNode={updateNode}
               onMoveNode={moveNode}
