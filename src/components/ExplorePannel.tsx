@@ -1,12 +1,11 @@
-import { BundledPipeline, MetaNode, Pipeline } from "@/store/type"
-import { generateMetaNode, generatePipeline, isMetaNode } from "@/utils/helper"
+import { BundledPipeline, MetaNode } from "@/store/type"
+import { isMetaNode } from "@/utils/helper"
 import { useEffect, useMemo, useState } from "react"
-import { Panel } from "./common/Panel"
 import { MetaNodeItem } from "./common/MetaNodeItem"
+import { Panel } from "./common/Panel"
 import { PipelineItem } from "./common/PipelineItem"
 
-// TODO change
-const ENDPOINT = "https://compositex-website.vercel.app"
+const ENDPOINT = "https://compositex.taterboom.com"
 
 let cache: any
 
