@@ -147,7 +147,7 @@ function MetaNodeItem(props: { value: MetaNode }) {
                   removeMetaNode(props.value.id)
                 }}
               >
-                just delete the node
+                Just delete the node
               </button>
               <button
                 className="btn btn-sm btn-error"
@@ -156,7 +156,7 @@ function MetaNodeItem(props: { value: MetaNode }) {
                   removeMetaNode(props.value.id, true)
                 }}
               >
-                delete them and the node
+                Delete them and the node
               </button>
             </>
           ) : (

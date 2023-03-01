@@ -345,7 +345,7 @@ document.querySelector(".assetPreview img").src
   const nodeConfig = {
     config: {
       name: "ZeplinImg",
-      desc: "Get Zeplin a desired img url by input img url",
+      desc: "Get Zeplin high precision img",
       input: { type: "string" },
       output: { type: "string" },
       options: [
@@ -829,7 +829,7 @@ document.querySelector(".assetPreview img").src
   const nodeConfig = {
     config: {
       name: "Base64",
-      desc: "Base64",
+      desc: "Base64 codec",
       input: { type: "string" },
       output: { type: "string" },
       options: [
@@ -862,7 +862,7 @@ document.querySelector(".assetPreview img").src
   const nodeConfig = {
     config: {
       name: "Pinyin",
-      desc: "Pinyin convertion based pinyin-api.vercel.app",
+      desc: "Pinyin convertion based on pinyin-api.vercel.app",
       input: { type: "string" },
       output: { type: "any" },
       options: [

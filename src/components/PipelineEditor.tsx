@@ -19,6 +19,18 @@ import clsx from "classnames"
 import { BlockNavigationConfirm } from "./common/BlockNavigationConfirm"
 import { InspectLink } from "./common/Inspect"
 
+function useIsFirstRender(): boolean {
+  const isFirst = useRef(true)
+
+  if (isFirst.current) {
+    isFirst.current = false
+
+    return true
+  }
+
+  return isFirst.current
+}
+
 function DraggableMetaNode(props: { value: MetaNode; onAdd?: (index?: number) => void }) {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemType.META,
@@ -473,7 +485,14 @@ export function PipelineEditor(props: {
     )
 
   const [candidateData, setCandidateData] = useState<null | Omit<Pipeline, "id">>(null)
-  const isBlocked = !candidateData && (nodes.length > 0 || !!name || !!desc)
+  const [changed, setChanged] = useState(false)
+  const isFirstRender = useIsFirstRender()
+  useEffect(() => {
+    if (!isFirstRender) {
+      setChanged(true)
+    }
+  }, [nodes, name, desc])
+  const isBlocked = !candidateData && changed
 
   useEffect(() => {
     if (candidateData) {
