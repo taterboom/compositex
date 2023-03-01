@@ -1,6 +1,7 @@
 import { plugins, setupMetaNode } from "@/plugins"
-import { generateMetaNode } from "@/utils/helper"
+import { generateMetaNode, isMetaNode } from "@/utils/helper"
 import { MetaNode } from "../type"
+import { getPresets } from "./presets"
 
 const pluginMetaNodes = setupMetaNode(plugins)
 
@@ -66,6 +67,15 @@ export const persistOptions = {
       } else {
         console.log("hydration finished")
         state.clearUnusedDisposableMetaNodes()
+        const presets = getPresets()
+        console.log("presets install")
+        presets.forEach((p) => {
+          if (isMetaNode(p)) {
+            state.installMetaNode(p)
+          } else {
+            state.installPipeline(p)
+          }
+        })
       }
     }
   },

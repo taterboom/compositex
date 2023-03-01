@@ -178,15 +178,16 @@ function MetaNodeItem(props: { value: MetaNode }) {
 
 function MetaNodes({ search }: { search: string }) {
   const metaNodes = useStore(selectOrderedMetaNodes)
+  const reusableMetaNodes = useMemo(() => metaNodes.filter((item) => !item.disposable), [metaNodes])
   const searchedMetaNodes = useMemo(() => {
-    if (!search) return metaNodes
+    if (!search) return reusableMetaNodes
     const searchString = search.trim().toLowerCase()
-    return metaNodes.filter(
+    return reusableMetaNodes.filter(
       (item) =>
         item.config.name?.toLowerCase().includes(searchString) ||
         item.config.desc?.toLowerCase().includes(searchString)
     )
-  }, [metaNodes, search])
+  }, [reusableMetaNodes, search])
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
       {searchedMetaNodes.map((metaNode, index) => (

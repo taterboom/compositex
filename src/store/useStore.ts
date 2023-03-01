@@ -11,6 +11,7 @@ import { persist } from "zustand/middleware"
 import { immer } from "zustand/middleware/immer"
 import { logger } from "./plugins/logger"
 import { persistOptions } from "./plugins/persistOptions"
+import { deletePreset, isPreset } from "./plugins/presets"
 import {
   selectBundledPipeline,
   selectMetaNode,
@@ -81,6 +82,9 @@ const useStore = create<State>()(
           set((state) => {
             state.metaNodes = state.metaNodes.filter((item) => item.id !== id)
             state.pins = state.pins.filter((item) => item !== id)
+            if (isPreset(id)) {
+              deletePreset(id)
+            }
           })
         },
         async updateMetaNode(id, metaNodeStr) {
@@ -133,6 +137,9 @@ const useStore = create<State>()(
           set((state) => {
             state.pipelines = state.pipelines.filter((item) => item.id !== id)
             state.pins = state.pins.filter((item) => item !== id)
+            if (isPreset(id)) {
+              deletePreset(id)
+            }
           })
         },
         runPipeline(id, input, onProgress) {
