@@ -7,7 +7,13 @@
       desc: "Compress via Tinypng",
       input: { type: "string" },
       output: { type: "any" },
-      options: [{ name: "apiKey", type: "string" }],
+      options: [
+        {
+          name: "apiKey",
+          desc: "get your api key in https://tinypng.com/developers",
+          type: "string",
+        },
+      ],
     },
     run(input, options, context) {
       return context
@@ -23,7 +29,7 @@
             },
           }),
         })
-        .then((res) => res.data)
+        .then((res) => res.json())
     },
   }
   return nodeConfig
@@ -39,7 +45,7 @@ document.querySelector(".assetPreview img").src
     config: {
       name: "MainWorld",
       desc: "Get main world info",
-      input: { type: "string" },
+      input: { type: "string", desc: "expression" },
       output: { type: "any" },
       options: [{ name: "expression", type: "string" }],
     },
@@ -371,15 +377,15 @@ document.querySelector(".assetPreview img").src
             .split("userToken=")[1]
           const versionsRes = await context
             .fetch(`${apiPrefix}${path}/versions`, { headers: { "zeplin-token": token } })
-            .then((res) => res.data)
+            .then((res) => res.json())
           const versionId = versionsRes.versions[0]._id
           const assetsUrlRes = await context
             .fetch(`${apiPrefix}${path}/versions/${versionId}/assets`, {
               headers: { "zeplin-token": token },
             })
-            .then((res) => res.data)
+            .then((res) => res.json())
           const asstesUrl = assetsUrlRes.url
-          const layers = await context.fetch(asstesUrl).then((res) => res.data)
+          const layers = await context.fetch(asstesUrl).then((res) => res.json())
           context.mainWorld("window.__layers_cache__=" + JSON.stringify(layers))
           layer = layers.find((item) => item.contents.some((content) => content.url === existUrl))
         }
@@ -463,25 +469,28 @@ document.querySelector(".assetPreview img").src
             },
             body: file,
           })
-          .then((res) => res.data)
+          .then((res) => res.json())
       }
-      const { file, ext } = await context.fetch(input).then((res) => {
-        const immetype = res.data.type
-        let ext = immetype.split("/")[1]
-        if (ext === "svg+xml") {
-          ext = "svg"
-        }
-        console.log(ext, immetype)
-        return {
-          file: new File([res.data], "compositex-shanbay-oss." + ext, { type: immetype }),
-          ext,
-        }
-      })
+      const { file, ext } = await context
+        .fetch(input)
+        .then((res) => res.blob())
+        .then((res) => {
+          const immetype = res.type
+          let ext = immetype.split("/")[1]
+          if (ext === "svg+xml") {
+            ext = "svg"
+          }
+          console.log(ext, immetype)
+          return {
+            file: new File([res], "compositex-shanbay-oss." + ext, { type: immetype }),
+            ext,
+          }
+        })
       const { data: token } = await context
         .fetch(
           `https://apiv3.shanbay.com/media/token?code=${options.code}&green_check=true&media_type=${ext}`
         )
-        .then((res) => res.data)
+        .then((res) => res.json())
       return upload(token, file)
     },
   }
@@ -884,7 +893,7 @@ document.querySelector(".assetPreview img").src
       Object.entries(options.apiOptions || {}).forEach(([key, value]) => {
         url.searchParams.append(key, value)
       })
-      const result = await context.fetch(url.toString()).then((res) => res.data)
+      const result = await context.fetch(url.toString()).then((res) => res.json())
       if (options.outputType === "text") {
         return result.join(" ")
       } else {

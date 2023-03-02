@@ -265,7 +265,7 @@ export function PipelineItem(props: { value: Pipeline }) {
                   removePipeline(props.value.id)
                 }}
               >
-                just delete the pipeline
+                Just delete the pipeline
               </button>
               <button
                 className="btn btn-sm btn-error"
@@ -274,7 +274,7 @@ export function PipelineItem(props: { value: Pipeline }) {
                   removePipeline(props.value.id, true)
                 }}
               >
-                delete them and the pipeline
+                Delete them and the pipeline
               </button>
             </>
           ) : (

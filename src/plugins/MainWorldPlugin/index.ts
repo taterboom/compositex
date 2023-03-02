@@ -143,7 +143,7 @@ const MainWorldMetaNode = {
       config: {
         name: "MainWorld",
         desc: "Get main world info",
-        input: { type: "string" },
+        input: { type: "string", desc: "expression" },
         output: { type: "any" },
         options: [
           { name: "expression", type: "string" },
