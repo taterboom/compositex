@@ -31,7 +31,7 @@ export function runPipeline(
 
 export function generatePipeline(pipeline: Pipeline | Omit<Pipeline, "id">): Pipeline {
   return {
-    id: uuidv4(),
+    id: "id" in pipeline ? pipeline.id : uuidv4(),
     ...pipeline,
   }
 }

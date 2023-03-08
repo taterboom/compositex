@@ -63,6 +63,17 @@ export function TypeDefinitionView({
           }}
         />
       )
+    case "file":
+      return (
+        <input
+          type="file"
+          className="file-input file-input-bordered file-input-sm w-full max-w-sm"
+          onChange={(e) => {
+            const file = e.target.files?.[0]
+            onChange?.(file)
+          }}
+        />
+      )
     default:
       return (
         <textarea

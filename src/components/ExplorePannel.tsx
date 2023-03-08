@@ -38,7 +38,7 @@ export function ExplorePannel() {
 
   const loading = objects?.length === 0
 
-  if (loading) return <div className="btn loading bg-transparent"></div>
+  if (loading) return <div className="btn loading bg-transparent border-none"></div>
 
   return (
     <Panel className="space-y-4">

@@ -904,3 +904,34 @@ document.querySelector(".assetPreview img").src
   return nodeConfig
 })()
 ```
+
+```javascript
+;(function () {
+  /** @type {CompositeX.MetaNodeConfig} */
+  const nodeConfig = {
+    config: {
+      name: "Tinypng File",
+      desc: "Compress uploaded file via Tinypng",
+      input: { type: "file" },
+      output: { type: "any" },
+      options: [
+        {
+          name: "apiKey",
+          type: "string",
+          desc: "get your api key in https://tinypng.com/developers",
+        },
+      ],
+    },
+    run(input, options, context) {
+      return fetch("https://api.tinify.com/shrink", {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${window.btoa(`api:${options.apiKey}`)}`,
+        },
+        body: input,
+      }).then((res) => res.json())
+    },
+  }
+  return nodeConfig
+})()
+```

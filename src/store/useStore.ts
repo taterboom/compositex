@@ -125,7 +125,7 @@ const useStore = create<State>()(
           set((state) => {
             const toBeUpdatedIndex = state.pipelines.findIndex((item) => item.id === id)
             if (toBeUpdatedIndex === -1) return
-            state.pipelines[toBeUpdatedIndex] = generatePipeline(pipeline)
+            state.pipelines[toBeUpdatedIndex] = generatePipeline({ ...pipeline, id })
           })
         },
         removePipeline(id, related = false) {
