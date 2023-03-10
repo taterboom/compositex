@@ -9,7 +9,7 @@ declare namespace CompositeX {
       ${pluginsContextType.context}
     }
     export type TypeDefinition = {
-        type: "string" | "number" | "boolean" | "json" | "enum" | "any"
+        type: "string" | "number" | "boolean" | "json" | "enum" | "any" | "file"
         enumItems?: { name: string; value: string }[]
         desc?: string
     }

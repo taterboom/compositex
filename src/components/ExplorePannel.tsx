@@ -4,12 +4,14 @@ import { useEffect, useMemo, useState } from "react"
 import { MetaNodeItem } from "./common/MetaNodeItem"
 import { Panel } from "./common/Panel"
 import { PipelineItem } from "./common/PipelineItem"
+import clsx from "classnames"
 
 const ENDPOINT = "https://compositex.taterboom.com"
 
 let cache: any
 
 export function ExplorePannel() {
+  const [selectedType, setSelectedType] = useState<null | "pipeline" | "node">(null)
   const [searchString, setSearchString] = useState("")
   const [objects, setObjects] = useState<Array<MetaNode | BundledPipeline>>([])
 
@@ -26,15 +28,24 @@ export function ExplorePannel() {
   }, [])
 
   const searchedObjects = useMemo(() => {
-    if (!searchString) return objects
+    const selectedTypeObjects = objects.filter((item) => {
+      if (selectedType === "pipeline") {
+        return !isMetaNode(item)
+      }
+      if (selectedType === "node") {
+        return isMetaNode(item)
+      }
+      return true
+    })
+    if (!searchString) return selectedTypeObjects
     const search = searchString.trim().toLowerCase()
-    return objects.filter((item) =>
+    return selectedTypeObjects.filter((item) =>
       isMetaNode(item)
         ? item.config?.name?.toLowerCase().includes(search) ||
           item.config?.desc?.toLowerCase().includes(search)
         : item.name?.toLowerCase().includes(search) || item.desc?.toLowerCase().includes(search)
     )
-  }, [objects, searchString])
+  }, [objects, searchString, selectedType])
 
   const loading = objects?.length === 0
 
@@ -42,14 +53,29 @@ export function ExplorePannel() {
 
   return (
     <Panel className="space-y-4">
-      <div>
-        <input
-          type="text"
-          placeholder="Search"
-          className="input input-bordered input-sm w-full max-w-sm "
-          value={searchString}
-          onChange={(e) => setSearchString(e.target.value)}
-        />
+      <div className="flex items-center justify-between">
+        <div className="btn-group">
+          {(["pipeline", "node"] as const).map((type) => (
+            <button
+              key={type}
+              className={clsx("btn btn-sm capitalize", selectedType === type && "btn-active")}
+              onClick={() => {
+                setSelectedType(selectedType === type ? null : type)
+              }}
+            >
+              {type}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-4">
+          <input
+            type="text"
+            placeholder="Search"
+            className="input input-bordered input-sm w-full max-w-sm "
+            value={searchString}
+            onChange={(e) => setSearchString(e.target.value)}
+          />
+        </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
         {searchedObjects.map((item) =>

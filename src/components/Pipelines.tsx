@@ -116,6 +116,7 @@ export function PipelineItem(props: { value: Pipeline }) {
   const { navigate } = useContext(NavigateContext)
   const [pipelineRunningId, setPipelineRunningId] = useState<string>("")
   const [progress, setProgress] = useState<ProgressItem[] | null>(null)
+  const [exportPopupVisible, setExportPopupVisible] = useState(false)
   const isPinned = useStore(selectIsPinned(props.value.id))
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const togglePin = useStore((state) => state.togglePin)
@@ -129,7 +130,7 @@ export function PipelineItem(props: { value: Pipeline }) {
   return (
     <div className="card max-w-[480px] p-4 bg-base-100 shadow-xl space-y-2">
       <div className="flex items-center">
-        <div className="flex-1 text-lg font-semibold">{props.value.name}</div>
+        <div className="flex-1 text-lg font-semibold truncate">{props.value.name}</div>
         <div className="flex">
           <button
             className="btn btn-ghost btn-sm btn-circle"
@@ -198,7 +199,7 @@ export function PipelineItem(props: { value: Pipeline }) {
                 <a
                   className="py-1 px-2"
                   onClick={() => {
-                    exportPipeline(props.value.id)
+                    setExportPopupVisible(true)
                   }}
                 >
                   Export
@@ -288,6 +289,47 @@ export function PipelineItem(props: { value: Pipeline }) {
               Yes
             </button>
           )}
+        </div>
+      </Popup>
+      <Popup open={exportPopupVisible}>
+        <div className="flex gap-1 text-lg font-semibold max-w-[400px]">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="text-warning stroke-current flex-shrink-0 h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
+          Are you sure to export the pipeline?
+        </div>
+        <div className="max-w-[400px] opacity-80 my-4">
+          All contents will be exported, including Private Key (if exists). Do not forget to delete
+          them before you share it.
+        </div>
+        <div className="flex justify-end space-x-4">
+          <button
+            className="btn btn-sm"
+            onClick={() => {
+              setExportPopupVisible(false)
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            className="btn btn-sm btn-primary"
+            onClick={() => {
+              exportPipeline(props.value.id)
+              setExportPopupVisible(false)
+            }}
+          >
+            Export
+          </button>
         </div>
       </Popup>
     </div>
