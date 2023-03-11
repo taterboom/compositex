@@ -1,7 +1,7 @@
 {
   "name": "compositex",
   "description": "composite nodes, run pipeline",
-  "version": "1.1",
+  "version": "1.1.1",
   "manifest_version": 3,
   "icons": {
     "48": "images/48.png",
@@ -19,7 +19,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["http://localhost/*"],
+      "matches": ["https://compositex.taterboom.com/*", "*://compositex.example.com/*"],
       "js": ["content-script.global.js"],
       "run_at": "document_start"
     }
@@ -27,7 +27,7 @@
   "web_accessible_resources": [
     {
       "resources": ["inject-global.global.js"],
-      "matches": ["http://localhost/*"]
+      "matches": ["https://compositex.taterboom.com/*", "*://compositex.example.com/*"]
     }
   ],
   "background": {
