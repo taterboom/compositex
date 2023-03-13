@@ -51,17 +51,45 @@ export function initFetchTerminal() {
   })
 }
 
+async function serializeRequestObject(requestObject: Request) {
+  const url = requestObject.url
+  const method = requestObject.method
+  const credentials = requestObject.credentials
+  const mode = requestObject.mode
+  const keepalive = requestObject.keepalive
+  const headers = Object.fromEntries([...requestObject.headers.entries()])
+  const body = await requestObject.arrayBuffer()
+  return [
+    url,
+    {
+      method,
+      headers,
+      body,
+      credentials,
+      mode,
+      keepalive,
+    },
+  ]
+}
+
 const sendMessage = generateMessageSender(window.parent)
 
 const FetchPlugin: Plugin = {
   name: NAME,
   terminal: initFetchTerminal,
   context: () => {
-    const mockFetch = (...args: any[]) =>
-      sendMessage<FetchResult>(MESSAGE_TYPE_SEND, args, { echo: true }).then((res) => {
+    const mockFetch = async (..._args: any[]) => {
+      let args
+      if (_args[0] instanceof Request) {
+        args = await serializeRequestObject(_args[0])
+      } else {
+        args = _args
+      }
+      return sendMessage<FetchResult>(MESSAGE_TYPE_SEND, args, { echo: true }).then((res) => {
         const { body, ...options } = res
         return new Response(body, options)
       })
+    }
     window.fetch = mockFetch
     return mockFetch
   },
