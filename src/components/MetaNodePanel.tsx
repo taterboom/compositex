@@ -31,7 +31,9 @@ function MetaNodeItem(props: { value: MetaNode }) {
   return (
     <div className="card max-w-[480px] p-4 bg-base-100 shadow-xl space-y-2">
       <div className="flex items-center">
-        <div className="flex-1 text-lg font-semibold">{props.value.config.name}</div>
+        <div className="flex-1 text-lg font-semibold">
+          <Link to={`editor/${props.value.id}`}>{props.value.config.name}</Link>
+        </div>
         <div className="flex">
           <div className="dropdown dropdown-end">
             <label tabIndex={0} className="btn btn-ghost btn-sm btn-circle">

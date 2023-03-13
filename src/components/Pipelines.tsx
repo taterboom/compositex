@@ -130,7 +130,14 @@ export function PipelineItem(props: { value: Pipeline }) {
   return (
     <div className="card max-w-[480px] p-4 bg-base-100 shadow-xl space-y-2">
       <div className="flex items-center">
-        <div className="flex-1 text-lg font-semibold truncate">{props.value.name}</div>
+        <div className="flex-1 text-lg font-semibold truncate">
+          <a
+            className="cursor-pointer"
+            onClick={() => navigate(`/${PANEL.PIPELINE}/editor/${props.value.id}`)}
+          >
+            {props.value.name}
+          </a>
+        </div>
         <div className="flex">
           <button
             className="btn btn-ghost btn-sm btn-circle"
