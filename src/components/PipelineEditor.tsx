@@ -332,7 +332,7 @@ function CreateDisposableNode(props: { onCreate?: (metaNode: MetaNode) => void }
       >
         add a disposable node
       </button>
-      <Popup open={open} className="w-2/3">
+      <Popup open={open}>
         <MetaNodeEditor
           cancelable
           onCancel={() => {
@@ -363,7 +363,7 @@ function UpdateDisposableNode(props: { value: MetaNode }) {
       >
         {props.value.config.name}
       </a>
-      <Popup open={open} className="w-2/3">
+      <Popup open={open}>
         <MetaNodeEditor
           value={props.value._raw}
           cancelable

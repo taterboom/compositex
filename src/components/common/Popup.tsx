@@ -32,24 +32,25 @@ export function Popup(
             transition={{
               duration: 0.1,
             }}
-            className={clsx(
-              "fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-base-100 shadow-lg p-4 rounded max-w-4xl",
-              props.className
-            )}
+            className={clsx("fixed inset-0 overflow-y-auto z-50 ", props.className)}
           >
-            {props.closeable && (
-              <div className="absolute right-0 top-0 translate-x-1/2 -translate-y-1/2 ">
-                <button
-                  className="btn btn-circle text-xl bg-base-100"
-                  onClick={() => {
-                    props.onClose?.()
-                  }}
-                >
-                  <MaterialSymbolsCloseRounded />
-                </button>
+            <div className="flex justify-center items-center min-h-screen p-8">
+              <div className="relative bg-base-100 shadow-lg p-4 rounded max-w-4xl">
+                {props.closeable && (
+                  <div className="absolute right-0 top-0 translate-x-1/2 -translate-y-1/2 ">
+                    <button
+                      className="btn btn-circle text-xl bg-base-100"
+                      onClick={() => {
+                        props.onClose?.()
+                      }}
+                    >
+                      <MaterialSymbolsCloseRounded />
+                    </button>
+                  </div>
+                )}
+                {props.children}
               </div>
-            )}
-            {props.children}
+            </div>
           </motion.div>
         </Portal>
       )}
