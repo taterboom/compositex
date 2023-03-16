@@ -30,7 +30,7 @@ class MetaNodeShell {
     this.options = otherOptions
     try {
       this._raw = formatCodeStr(code)
-      eval(`this._evaled=${code}`)
+      eval(`this._evaled=${this._raw}`)
     } catch (err) {
       console.log(err)
       throw new Error("Node initial error")
