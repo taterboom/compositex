@@ -330,7 +330,7 @@ function CreateDisposableNode(props: { onCreate?: (metaNode: MetaNode) => void }
           setOpen(true)
         }}
       >
-        add a disposable node
+        add a one-off node
       </button>
       <Popup open={open}>
         <MetaNodeEditor
